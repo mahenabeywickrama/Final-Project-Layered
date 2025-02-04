@@ -71,9 +71,6 @@ public class DashBoardController implements Initializable {
     private Label lblTotalOrders;
 
     @FXML
-    private Label lblTotalPCs;
-
-    @FXML
     private Label lblTotalReplacements;
 
     @FXML
@@ -93,7 +90,6 @@ public class DashBoardController implements Initializable {
     private final OrdersModel ordersModel = new OrdersModel();
     private final PaymentModel paymentModel = new PaymentModel();
     private final ReplacementModel replacementModel = new ReplacementModel();
-    private final PCModel pcModel = new PCModel();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -121,7 +117,6 @@ public class DashBoardController implements Initializable {
         setNonReturnedRepairCount();
         setTodaysOrdersCount();
         setTodaysIncome();
-        setTotalPCs();
         setTotalReplacements();
     }
 
@@ -182,12 +177,6 @@ public class DashBoardController implements Initializable {
         ArrayList<ReplacementDTO> replacementDTOS = replacementModel.getAllReplacements();
         int replacementCount = replacementDTOS.size();
         lblTotalReplacements.setText(replacementCount + "");
-    }
-
-    public void setTotalPCs() throws SQLException {
-        ArrayList<PCDTO> pcdtos = pcModel.getAllPCs();
-        int pcCount = pcdtos.size();
-        lblTotalPCs.setText(pcCount + "");
     }
 
     public void setNonReturnedRepairCount() throws SQLException {

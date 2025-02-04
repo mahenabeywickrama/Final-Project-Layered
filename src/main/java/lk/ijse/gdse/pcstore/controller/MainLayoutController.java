@@ -43,9 +43,6 @@ public class MainLayoutController implements Initializable {
     private Button btnOrders;
 
     @FXML
-    private Button btnPC;
-
-    @FXML
     private Button btnPayment;
 
     @FXML
@@ -156,12 +153,6 @@ public class MainLayoutController implements Initializable {
     }
 
     @FXML
-    void navigationToPCPage(ActionEvent event) {
-        changeBtnColor(btnPC);
-        navigateTo("/view/PCView.fxml");
-    }
-
-    @FXML
     void navigationToPaymentPage(ActionEvent event) {
         changeBtnColor(btnPayment);
         navigateTo("/view/PaymentView.fxml");
@@ -208,7 +199,7 @@ public class MainLayoutController implements Initializable {
     }
 
     private void changeBtnColor(Button btn){
-        Button[] buttons = {btnCustomer, btnDashBoard, btnEmployee, btnItems, btnLogOut, btnLoginHistory, btnOrders, btnPayment, btnRepair, btnReplacement, btnSupplier, btnSupplies, btnUser, btnPC};
+        Button[] buttons = {btnCustomer, btnDashBoard, btnEmployee, btnItems, btnLogOut, btnLoginHistory, btnOrders, btnPayment, btnRepair, btnReplacement, btnSupplier, btnSupplies, btnUser};
         for (Button button : buttons) {
             button.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff;");
 

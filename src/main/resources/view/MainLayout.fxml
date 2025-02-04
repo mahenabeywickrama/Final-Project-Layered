@@ -52,11 +52,6 @@
                         <Font size="20.0" />
                      </font>
                   </Button>
-                  <Button fx:id="btnPC" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#navigationToPCPage" prefHeight="51.0" prefWidth="280.0" style="-fx-background-color: #000000;" text="PC" textFill="WHITE">
-                     <font>
-                        <Font size="20.0" />
-                     </font>
-                  </Button>
                   <Button fx:id="btnItems" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#navigationToItemPage" prefHeight="51.0" prefWidth="280.0" style="-fx-background-color: #000000;" text="Items" textFill="WHITE">
                      <font>
                         <Font size="20.0" />

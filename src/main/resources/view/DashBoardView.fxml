@@ -12,7 +12,7 @@
 
 <AnchorPane prefHeight="720.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lk.ijse.gdse.pcstore.controller.DashBoardController">
    <children>
-      <HBox layoutX="20.0" layoutY="606.0" prefHeight="100.0">
+      <HBox layoutX="20.0" layoutY="606.0" prefHeight="100.0" prefWidth="622.0">
          <children>
             <VBox prefWidth="180.0">
                <children>
@@ -100,26 +100,6 @@
                   </Label>
                </children>
             </VBox>
-            <VBox prefWidth="180.0">
-               <children>
-                  <Label contentDisplay="RIGHT" prefWidth="200.0" text="Total PCs">
-                     <font>
-                        <Font name="Arial Rounded MT Bold" size="14.0" />
-                     </font>
-                     <VBox.margin>
-                        <Insets left="10.0" top="10.0" />
-                     </VBox.margin>
-                  </Label>
-                  <Label fx:id="lblTotalPCs" prefWidth="140.0" text="0">
-                     <font>
-                        <Font name="Arial Rounded MT Bold" size="48.0" />
-                     </font>
-                     <VBox.margin>
-                        <Insets left="20.0" />
-                     </VBox.margin>
-                  </Label>
-               </children>
-            </VBox>
          </children>
       </HBox>
       <Label layoutX="20.0" layoutY="90.0" text="Recent Orders">
@@ -137,7 +117,7 @@
             <TableColumn fx:id="colStatus" prefWidth="82.0" text="Status" />
         </columns>
       </TableView>
-      <Pane layoutX="687.0" layoutY="144.0" prefHeight="423.0" prefWidth="293.0" style="-fx-background-color: #dadada;">
+      <Pane layoutX="687.0" layoutY="144.0" prefHeight="551.0" prefWidth="293.0" style="-fx-background-color: #dadada;">
          <children>
             <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="28.0" prefHeight="20.0" prefWidth="204.0" text="Total Orders : ">
                <font>
