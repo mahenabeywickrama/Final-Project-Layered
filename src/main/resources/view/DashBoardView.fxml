@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lk.ijse.gdse.pcstore.controller.DashBoardController">
+   <children>
+      <HBox layoutX="20.0" layoutY="606.0" prefHeight="100.0">
+         <children>
+            <VBox prefWidth="180.0">
+               <children>
+                  <Label contentDisplay="RIGHT" prefWidth="240.0" text="Total Customers     ">
+                     <font>
+                        <Font name="Arial Rounded MT Bold" size="14.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="10.0" top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label fx:id="lblTotalCostomer" prefHeight="70.0" prefWidth="106.0" text="0">
+                     <font>
+                        <Font name="Arial Rounded MT Bold" size="48.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="20.0" />
+                     </VBox.margin>
+                  </Label>
+               </children>
+            </VBox>
+            <VBox prefWidth="180.0">
+               <HBox.margin>
+                  <Insets left="30.0" />
+               </HBox.margin>
+               <children>
+                  <Label contentDisplay="RIGHT" prefWidth="200.0" text="Total Orders">
+                     <font>
+                        <Font name="Arial Rounded MT Bold" size="14.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="10.0" top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label fx:id="lblTotalOrders" prefWidth="200.0" text="0">
+                     <font>
+                        <Font name="Arial Rounded MT Bold" size="48.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="20.0" />
+                     </VBox.margin>
+                  </Label>
+               </children>
+            </VBox>
+            <VBox prefWidth="180.0">
+               <children>
+                  <Label contentDisplay="RIGHT" prefWidth="200.0" text="Non return             &#10;Repairs ">
+                     <font>
+                        <Font name="Arial Rounded MT Bold" size="14.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="10.0" top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label fx:id="lblTotalNonReturnedRepairs" prefWidth="140.0" text="0">
+                     <font>
+                        <Font name="Arial Rounded MT Bold" size="48.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="20.0" />
+                     </VBox.margin>
+                  </Label>
+               </children>
+               <HBox.margin>
+                  <Insets left="30.0" />
+               </HBox.margin>
+            </VBox>
+            <VBox prefWidth="180.0">
+               <children>
+                  <Label contentDisplay="RIGHT" prefWidth="200.0" text="Total Replacements">
+                     <font>
+                        <Font name="Arial Rounded MT Bold" size="14.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="10.0" top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label fx:id="lblTotalReplacements" prefWidth="140.0" text="0">
+                     <font>
+                        <Font name="Arial Rounded MT Bold" size="48.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="20.0" />
+                     </VBox.margin>
+                  </Label>
+               </children>
+            </VBox>
+            <VBox prefWidth="180.0">
+               <children>
+                  <Label contentDisplay="RIGHT" prefWidth="200.0" text="Total PCs">
+                     <font>
+                        <Font name="Arial Rounded MT Bold" size="14.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="10.0" top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label fx:id="lblTotalPCs" prefWidth="140.0" text="0">
+                     <font>
+                        <Font name="Arial Rounded MT Bold" size="48.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="20.0" />
+                     </VBox.margin>
+                  </Label>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+      <Label layoutX="20.0" layoutY="90.0" text="Recent Orders">
+         <font>
+            <Font size="27.0" />
+         </font>
+      </Label>
+      <TableView fx:id="tblOrders" layoutX="20.0" layoutY="144.0" prefHeight="423.0" prefWidth="622.0">
+        <columns>
+          <TableColumn fx:id="colCustomer" prefWidth="122.0" text="Customer" />
+            <TableColumn fx:id="colEmployee" prefWidth="128.0" text="Employee" />
+          <TableColumn fx:id="colTime" prefWidth="105.0" text="Time" />
+            <TableColumn fx:id="colType" prefWidth="88.0" text="Type" />
+            <TableColumn fx:id="colTotal" prefWidth="94.0" text="Total" />
+            <TableColumn fx:id="colStatus" prefWidth="82.0" text="Status" />
+        </columns>
+      </TableView>
+      <Pane layoutX="687.0" layoutY="144.0" prefHeight="423.0" prefWidth="293.0" style="-fx-background-color: #dadada;">
+         <children>
+            <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="28.0" prefHeight="20.0" prefWidth="204.0" text="Total Orders : ">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Label contentDisplay="RIGHT" layoutX="14.0" layoutY="80.0" prefHeight="25.0" prefWidth="126.0" text="Total Income : Rs.">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Label fx:id="lblTotalTodaysOrders" contentDisplay="RIGHT" layoutX="128.0" layoutY="28.0" prefHeight="25.0" prefWidth="151.0">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Label fx:id="lblTotalTodaysIncome" contentDisplay="RIGHT" layoutX="147.0" layoutY="80.0" prefHeight="25.0" prefWidth="126.0">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+         </children></Pane>
+      <Label layoutX="685.0" layoutY="90.0" text="Today's Summary">
+         <font>
+            <Font size="27.0" />
+         </font>
+      </Label>
+      <HBox alignment="CENTER_LEFT" layoutX="20.0" layoutY="10.0" prefHeight="30.0" prefWidth="960.0">
+         <children>
+            <Label text="Employee : ">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="lblEmployeeName" prefHeight="30.0" prefWidth="670.0">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <Label text="Date : ">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="lblDate" prefHeight="30.0" prefWidth="160.0">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" layoutX="20.0" layoutY="40.0" prefHeight="30.0" prefWidth="960.0">
+         <children>
+            <Label text="Role : ">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="lblRank" prefHeight="30.0" prefWidth="707.0">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <Label text="Time : ">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="lblTime" prefHeight="30.0" prefWidth="160.0">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>
