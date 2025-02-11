@@ -8,11 +8,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.OrdersBO;
+import lk.ijse.gdse.pcstore.bo.custom.PaymentBO;
 import lk.ijse.gdse.pcstore.dto.PaymentDTO;
 import lk.ijse.gdse.pcstore.dto.UserDTO;
 import lk.ijse.gdse.pcstore.dto.tm.EmployeeTM;
 import lk.ijse.gdse.pcstore.dto.tm.PaymentTM;
-import lk.ijse.gdse.pcstore.model.*;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -81,10 +83,8 @@ public class PaymentController implements Initializable {
     @FXML
     private TextField txtAmount;
 
-    private final OrdersModel ordersModel = new OrdersModel();
-    private final PaymentModel paymentModel = new PaymentModel();
-    private final CustomerModel customerModel = new CustomerModel();
-    private final EmployeeModel employeeModel = new EmployeeModel();
+    OrdersBO orderBO = (OrdersBO) BOFactory.getInstance().getBO(BOFactory.BOType.ORDERS);
+    PaymentBO paymentBO = (PaymentBO) BOFactory.getInstance().getBO(BOFactory.BOType.PAYMENT);
 
     private final ObservableList<PaymentTM> paymentTMObservableList = FXCollections.observableArrayList();
 
@@ -125,7 +125,7 @@ public class PaymentController implements Initializable {
     }
 
     public void loadTableData() throws SQLException {
-        ArrayList<PaymentDTO> paymentDTOS = paymentModel.getAllPayments();
+        ArrayList<PaymentDTO> paymentDTOS = paymentBO.getAllPayments();
         ObservableList<PaymentTM> paymentTMS = FXCollections.observableArrayList();
 
         for (PaymentDTO paymentDTO : paymentDTOS) {
@@ -145,12 +145,12 @@ public class PaymentController implements Initializable {
     }
 
     public void loadNextPaymentId() throws SQLException {
-        String nextPaymentId = paymentModel.getNextPaymentId();
+        String nextPaymentId = paymentBO.getNextPaymentId();
         lblPaymentId.setText(nextPaymentId);
     }
 
     public void loadCmbOrdersId() throws SQLException {
-        ArrayList<String> ordersIds = ordersModel.getAllOrdersIds();
+        ArrayList<String> ordersIds = orderBO.getAllOrdersIds();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(ordersIds);
         cmbOrdersId.setItems(observableList);
@@ -171,10 +171,10 @@ public class PaymentController implements Initializable {
 
         if (optionalButtonType.isPresent() && optionalButtonType.get() == ButtonType.YES) {
 
-            boolean isDeleted = paymentModel.deletePayment(paymentId);
+            boolean isDeleted = paymentBO.deletePayment(paymentId);
             if (isDeleted) {
                 refreshPage();
-                ordersModel.updateOrdersPending(ordersId);
+                orderBO.updateOrdersPending(ordersId);
                 new Alert(Alert.AlertType.INFORMATION, "User deleted...!").show();
             } else {
                 new Alert(Alert.AlertType.ERROR, "Fail to delete user...!").show();
@@ -214,10 +214,10 @@ public class PaymentController implements Initializable {
                 balance
         );
 
-        boolean isSaved = paymentModel.savePayment(paymentDTO);
+        boolean isSaved = paymentBO.savePayment(paymentDTO);
         if (isSaved) {
             refreshPage();
-            ordersModel.updateOrdersPaid(ordersId);
+            orderBO.updateOrdersPaid(ordersId);
             new Alert(Alert.AlertType.INFORMATION, "Payment saved...!").show();
         } else {
             new Alert(Alert.AlertType.ERROR, "Fail to save payment...!").show();
@@ -251,7 +251,7 @@ public class PaymentController implements Initializable {
                 balance
         );
 
-        boolean isSaved = paymentModel.updatePayment(paymentDTO);
+        boolean isSaved = paymentBO.updatePayment(paymentDTO);
         if (isSaved) {
             refreshPage();
             new Alert(Alert.AlertType.INFORMATION, "Payment updated...!").show();
@@ -265,9 +265,9 @@ public class PaymentController implements Initializable {
         String ordersId = cmbOrdersId.getValue();
 
         if (ordersId != null) {
-            lblCustomer.setText(ordersModel.findOrdersCustomer(ordersId));
-            lblEmployee.setText(ordersModel.findOrdersEmployee(ordersId));
-            lblPrice.setText(ordersModel.findOrdersPrice(ordersId));
+            lblCustomer.setText(orderBO.findOrdersCustomer(ordersId));
+            lblEmployee.setText(orderBO.findOrdersEmployee(ordersId));
+            lblPrice.setText(orderBO.findOrdersPrice(ordersId));
         }
     }
 

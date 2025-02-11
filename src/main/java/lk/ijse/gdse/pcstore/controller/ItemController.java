@@ -8,11 +8,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.CategoryBO;
+import lk.ijse.gdse.pcstore.bo.custom.ItemBO;
 import lk.ijse.gdse.pcstore.dto.CategoryDTO;
 import lk.ijse.gdse.pcstore.dto.ItemDTO;
 import lk.ijse.gdse.pcstore.dto.tm.ItemTM;
-import lk.ijse.gdse.pcstore.model.CategoryModel;
-import lk.ijse.gdse.pcstore.model.ItemModel;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -82,6 +83,9 @@ public class ItemController implements Initializable {
     @FXML
     private TextField txtWarranty;
 
+    CategoryBO categoryBO = (CategoryBO) BOFactory.getInstance().getBO(BOFactory.BOType.CATEGORY);
+    ItemBO itemBO = (ItemBO) BOFactory.getInstance().getBO(BOFactory.BOType.ITEM);
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         colItemId.setCellValueFactory(new PropertyValueFactory<>("itemId"));
@@ -115,11 +119,8 @@ public class ItemController implements Initializable {
         txtWarranty.setText("");
     }
 
-    ItemModel itemModel = new ItemModel();
-    CategoryModel categoryModel = new CategoryModel();
-
     public void loadTableData() throws SQLException {
-        ArrayList<ItemDTO> itemDTOS = itemModel.getAllItems();
+        ArrayList<ItemDTO> itemDTOS = itemBO.getAll();
         ObservableList<ItemTM> itemTMS = FXCollections.observableArrayList();
 
         for (ItemDTO itemDTO : itemDTOS) {
@@ -138,12 +139,12 @@ public class ItemController implements Initializable {
     }
 
     public void loadNextItemId() throws SQLException {
-        String nextItemId = itemModel.getNextItemId();
+        String nextItemId = itemBO.getNextId();
         lblItemId.setText(nextItemId);
     }
 
     public void loadCmbCategoryId() throws SQLException {
-        ArrayList<String> categoryIds = categoryModel.getAllCategoryIds();
+        ArrayList<String> categoryIds = categoryBO.getAllIds();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(categoryIds);
         cmbCategoryId.setItems(observableList);
@@ -155,12 +156,12 @@ public class ItemController implements Initializable {
             new Alert(Alert.AlertType.INFORMATION, "Enter a new category name").show();
         } else {
             try {
-                String categoryId = categoryModel.getNextCategoryId();
+                String categoryId = categoryBO.getNextId();
                 String description = txtNewCategory.getText();
 
                 CategoryDTO categoryDTO = new CategoryDTO(categoryId, description);
 
-                boolean isSaved = categoryModel.saveCategory(categoryDTO);
+                boolean isSaved = categoryBO.save(categoryDTO);
                 if (isSaved) {
                     txtNewCategory.setText("");
                     loadCmbCategoryId();
@@ -183,7 +184,7 @@ public class ItemController implements Initializable {
 
         if (optionalButtonType.isPresent() && optionalButtonType.get() == ButtonType.YES) {
 
-            boolean isDeleted = itemModel.deleteItem(itemId);
+            boolean isDeleted = itemBO.delete(itemId);
             if (isDeleted) {
                 refreshPage();
                 new Alert(Alert.AlertType.INFORMATION, "Item deleted...!").show();
@@ -201,7 +202,7 @@ public class ItemController implements Initializable {
     @FXML
     void btnSaveItemOnAction(ActionEvent event) throws SQLException {
         String itemId = lblItemId.getText();
-        String categoryId = categoryModel.findByDescription(cmbCategoryId.getValue());
+        String categoryId = categoryBO.findByName(cmbCategoryId.getValue()).getCategoryId();
         String name = txtName.getText();
         double price = Double.parseDouble(txtPrice.getText());
         int quantity = Integer.parseInt(txtQuantity.getText());
@@ -209,7 +210,7 @@ public class ItemController implements Initializable {
 
         ItemDTO itemDTO = new ItemDTO(itemId, categoryId, name, price, quantity, warranty);
 
-        boolean isSaved = itemModel.saveItem(itemDTO);
+        boolean isSaved = itemBO.save(itemDTO);
         if (isSaved) {
             refreshPage();
             new Alert(Alert.AlertType.INFORMATION, "Item saved...!").show();
@@ -221,7 +222,7 @@ public class ItemController implements Initializable {
     @FXML
     void btnUpdateItemOnAction(ActionEvent event) throws SQLException {
         String itemId = lblItemId.getText();
-        String categoryId = categoryModel.findByDescription(cmbCategoryId.getValue());
+        String categoryId = categoryBO.findByName(cmbCategoryId.getValue()).getCategoryId();
         String name = txtName.getText();
         double price = Double.parseDouble(txtPrice.getText());
         int quantity = Integer.parseInt(txtQuantity.getText());
@@ -229,7 +230,7 @@ public class ItemController implements Initializable {
 
         ItemDTO itemDTO = new ItemDTO(itemId, categoryId, name, price, quantity, warranty);
 
-        boolean isSaved = itemModel.updateItem(itemDTO);
+        boolean isSaved = itemBO.update(itemDTO);
         if (isSaved) {
             refreshPage();
             new Alert(Alert.AlertType.INFORMATION, "Item updated...!").show();
@@ -249,7 +250,7 @@ public class ItemController implements Initializable {
 
         if (itemTM != null) {
             lblItemId.setText(itemTM.getItemId());
-            cmbCategoryId.setValue(categoryModel.findById(itemTM.getCategoryId()));
+            cmbCategoryId.setValue(categoryBO.findById(itemTM.getCategoryId()).getDescription());
             txtName.setText(itemTM.getItemName());
             txtPrice.setText(String.valueOf(itemTM.getPrice()));
             txtQuantity.setText(String.valueOf(itemTM.getQuantity()));

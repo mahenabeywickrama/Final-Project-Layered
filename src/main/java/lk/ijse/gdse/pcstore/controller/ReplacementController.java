@@ -8,12 +8,16 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.ItemBO;
+import lk.ijse.gdse.pcstore.bo.custom.OrdersBO;
+import lk.ijse.gdse.pcstore.bo.custom.OrdersItemBO;
+import lk.ijse.gdse.pcstore.bo.custom.ReplacementBO;
 import lk.ijse.gdse.pcstore.dto.ItemDTO;
 import lk.ijse.gdse.pcstore.dto.PaymentDTO;
 import lk.ijse.gdse.pcstore.dto.ReplacementDTO;
 import lk.ijse.gdse.pcstore.dto.tm.PaymentTM;
 import lk.ijse.gdse.pcstore.dto.tm.ReplacementTM;
-import lk.ijse.gdse.pcstore.model.*;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -88,9 +92,10 @@ public class ReplacementController implements Initializable {
     @FXML
     private TextField txtRemarks;
 
-    private final OrdersModel ordersModel = new OrdersModel();
-    private final OrdersItemModel ordersItemModel = new OrdersItemModel();
-    private final ItemModel itemModel = new ItemModel();
+    ItemBO itemBO = (ItemBO) BOFactory.getInstance().getBO(BOFactory.BOType.ITEM);
+    OrdersBO ordersBO = (OrdersBO) BOFactory.getInstance().getBO(BOFactory.BOType.ORDERS);
+    OrdersItemBO ordersItemBO = (OrdersItemBO) BOFactory.getInstance().getBO(BOFactory.BOType.ORDERS_ITEM);
+    ReplacementBO replacementBO = (ReplacementBO) BOFactory.getInstance().getBO(BOFactory.BOType.REPLACEMENT);
 
     private int qtyForUpdate = 0;
     private String itemIdForUpdate = "";
@@ -137,10 +142,8 @@ public class ReplacementController implements Initializable {
         txtRemarks.setText("");
     }
 
-    ReplacementModel replacementModel = new ReplacementModel();
-
     public void loadTableData() throws SQLException {
-        ArrayList<ReplacementDTO> replacementDTOS = replacementModel.getAllReplacements();
+        ArrayList<ReplacementDTO> replacementDTOS = replacementBO.getAllReplacements();
 
         ObservableList<ReplacementTM> replacementTMS = FXCollections.observableArrayList();
 
@@ -162,23 +165,23 @@ public class ReplacementController implements Initializable {
     }
 
     public void loadNextReplacementId() throws SQLException {
-        String nextReplacementId = replacementModel.getNextReplacementId();
+        String nextReplacementId = replacementBO.getNextReplacementId();
         lblReplacementId.setText(nextReplacementId);
     }
 
     public void loadOrders() throws SQLException {
-        ArrayList<String> ordersIds = ordersModel.getAllOrdersIdsPaid();
+        ArrayList<String> ordersIds = ordersBO.getAllOrdersIdsPaid();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(ordersIds);
         cmbOrdersId.setItems(observableList);
     }
 
     public void loadItemNames(String ordersId) throws SQLException {
-        ArrayList<String> itemIds = ordersItemModel.getAllItemsFromOrders(ordersId);
+        ArrayList<String> itemIds = ordersItemBO.getAllItemsFromOrders(ordersId);
         ArrayList<String> itemNames = new ArrayList<>();
 
         for (String itemId : itemIds) {
-            String itemName = itemModel.findById(itemId).getItemName();
+            String itemName = itemBO.findById(itemId).getItemName();
             if (itemName != null) {
                 itemNames.add(itemName);
             }
@@ -190,7 +193,7 @@ public class ReplacementController implements Initializable {
 
     public void loadSimilarItemNames(ItemDTO itemDTO) throws SQLException {
         String categoryId = itemDTO.getCategoryId();
-        ArrayList<String> itemNames = itemModel.getAllItemNamesForCategory(categoryId);
+        ArrayList<String> itemNames = itemBO.getAllItemNamesForCategory(categoryId);
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(itemNames);
         cmbReplacedItemName.setItems(observableList);
@@ -198,8 +201,8 @@ public class ReplacementController implements Initializable {
 
     public boolean isEligible() throws SQLException {
         LocalDate today = LocalDate.parse(replacementDate.getText());
-        LocalDate paidDay = LocalDate.parse(ordersModel.findOrdersDate(cmbOrdersId.getValue()));
-        int warranty = itemModel.findByName(cmbFaultyItemName.getValue()).getWarranty();
+        LocalDate paidDay = LocalDate.parse(ordersBO.findOrdersDate(cmbOrdersId.getValue()));
+        int warranty = itemBO.findByName(cmbFaultyItemName.getValue()).getWarranty();
         LocalDate warrantyExpiryDate = paidDay.plusMonths(warranty);
 
         if (today.isAfter(warrantyExpiryDate)) {
@@ -213,8 +216,8 @@ public class ReplacementController implements Initializable {
     void btnDeleteOnAction(ActionEvent event) throws SQLException {
         String replacementId = lblReplacementId.getText();
         String ordersId = cmbOrdersId.getValue();
-        String faultyItemId = itemModel.findByName(cmbFaultyItemName.getValue()).getItemId();
-        String replacedItemId = itemModel.findByName(cmbReplacedItemName.getValue()).getItemId();
+        String faultyItemId = itemBO.findByName(cmbFaultyItemName.getValue()).getItemId();
+        String replacedItemId = itemBO.findByName(cmbReplacedItemName.getValue()).getItemId();
         int qty = Integer.parseInt(txtQty.getText());
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
@@ -242,10 +245,10 @@ public class ReplacementController implements Initializable {
 
         if (optionalButtonType.isPresent() && optionalButtonType.get() == ButtonType.YES) {
 
-            boolean isDeleted = replacementModel.deleteReplacement(replacementId);
+            boolean isDeleted = replacementBO.deleteReplacement(replacementId);
             if (isDeleted) {
                 refreshPage();
-                itemModel.increaseQtyByReplacement(replacementDTO);
+                itemBO.increaseQtyByReplacement(replacementDTO);
                 new Alert(Alert.AlertType.INFORMATION, "Replacement deleted...!").show();
             } else {
                 new Alert(Alert.AlertType.ERROR, "Fail to delete replacement...!").show();
@@ -257,8 +260,8 @@ public class ReplacementController implements Initializable {
     void btnSaveOnAction(ActionEvent event) throws SQLException {
         String replacementId = lblReplacementId.getText();
         String ordersId = cmbOrdersId.getValue();
-        String faultyItemId = itemModel.findByName(cmbFaultyItemName.getValue()).getItemId();
-        String replacedItemId = itemModel.findByName(cmbReplacedItemName.getValue()).getItemId();
+        String faultyItemId = itemBO.findByName(cmbFaultyItemName.getValue()).getItemId();
+        String replacedItemId = itemBO.findByName(cmbReplacedItemName.getValue()).getItemId();
         int qty = Integer.parseInt(txtQty.getText());
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
@@ -286,10 +289,10 @@ public class ReplacementController implements Initializable {
                 remarks
         );
 
-        boolean isSaved = replacementModel.saveReplacement(replacementDTO);
+        boolean isSaved = replacementBO.saveReplacement(replacementDTO);
         if (isSaved) {
             refreshPage();
-            itemModel.reduceQtyByReplacement(replacementDTO);
+            itemBO.reduceQtyByReplacement(replacementDTO);
             new Alert(Alert.AlertType.INFORMATION, "Replacement saved...!").show();
         } else {
             new Alert(Alert.AlertType.ERROR, "Fail to save replacement...!").show();
@@ -300,8 +303,8 @@ public class ReplacementController implements Initializable {
     void btnUpdateOnAction(ActionEvent event) throws SQLException {
         String replacementId = lblReplacementId.getText();
         String ordersId = cmbOrdersId.getValue();
-        String faultyItemId = itemModel.findByName(cmbFaultyItemName.getValue()).getItemId();
-        String replacedItemId = itemModel.findByName(cmbReplacedItemName.getValue()).getItemId();
+        String faultyItemId = itemBO.findByName(cmbFaultyItemName.getValue()).getItemId();
+        String replacedItemId = itemBO.findByName(cmbReplacedItemName.getValue()).getItemId();
         int qty = Integer.parseInt(txtQty.getText());
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
@@ -324,7 +327,7 @@ public class ReplacementController implements Initializable {
                 remarks
         );
 
-        itemModel.increaseQtyByReplacement(replacementDTO);
+        itemBO.increaseQtyByReplacement(replacementDTO);
 
         replacementDTO = new ReplacementDTO(
                 replacementId,
@@ -337,10 +340,10 @@ public class ReplacementController implements Initializable {
                 remarks
         );
 
-        boolean isSaved = replacementModel.updateReplacement(replacementDTO);
+        boolean isSaved = replacementBO.updateReplacement(replacementDTO);
         if (isSaved) {
             refreshPage();
-            itemModel.reduceQtyByReplacement(replacementDTO);
+            itemBO.reduceQtyByReplacement(replacementDTO);
             new Alert(Alert.AlertType.INFORMATION, "Replacement updated...!").show();
         } else {
             new Alert(Alert.AlertType.ERROR, "Fail to update replacement...!").show();
@@ -349,10 +352,12 @@ public class ReplacementController implements Initializable {
 
     @FXML
     void cmbFaultyItemNameOnAction(ActionEvent event) throws SQLException {
-        ItemDTO itemDTO = itemModel.findByName(cmbFaultyItemName.getValue());
+        if (cmbFaultyItemName.getValue() == null) return;
+
+        ItemDTO itemDTO = itemBO.findByName(cmbFaultyItemName.getValue());
 
         if (itemDTO != null) {
-            txtQty.setText(ordersItemModel.findQty(itemDTO.getItemId()));
+            txtQty.setText(ordersItemBO.findQty(itemDTO.getItemId()));
             txtQty.setDisable(true);
             loadSimilarItemNames(itemDTO);
         }
@@ -360,6 +365,8 @@ public class ReplacementController implements Initializable {
 
     @FXML
     void cmbOrdersIdOnAction(ActionEvent event) throws SQLException {
+        if (cmbOrdersId.getValue() == null) return;
+
         String ordersId = cmbOrdersId.getValue();
 
         if (ordersId != null) {
@@ -369,7 +376,9 @@ public class ReplacementController implements Initializable {
 
     @FXML
     void cmbReplacedItemNameOnAction(ActionEvent event) throws SQLException {
-        ItemDTO itemDTO = itemModel.findByName(cmbReplacedItemName.getValue());
+        if (cmbReplacedItemName.getValue() == null) return;
+
+        ItemDTO itemDTO = itemBO.findByName(cmbReplacedItemName.getValue());
 
         if (itemDTO != null) {
             lblItemPrice.setText(Double.toString(itemDTO.getPrice()));
@@ -383,11 +392,11 @@ public class ReplacementController implements Initializable {
         if (replacementTM != null) {
             lblReplacementId.setText(replacementTM.getReplacementId());
             cmbOrdersId.setValue(replacementTM.getOrdersId());
-            cmbFaultyItemName.setValue(itemModel.findById(replacementTM.getFaultyItemId()).getItemName());
-            cmbReplacedItemName.setValue(itemModel.findById(replacementTM.getReplacedItemId()).getItemName());
-            itemIdForUpdate = itemModel.findById(replacementTM.getReplacedItemId()).getItemName();
-            lblItemQtyOnHand.setText(Integer.toString(itemModel.findById(replacementTM.getReplacedItemId()).getQuantity()));
-            lblItemPrice.setText(Double.toString(itemModel.findById(replacementTM.getReplacedItemId()).getPrice()));
+            cmbFaultyItemName.setValue(itemBO.findById(replacementTM.getFaultyItemId()).getItemName());
+            cmbReplacedItemName.setValue(itemBO.findById(replacementTM.getReplacedItemId()).getItemName());
+            itemIdForUpdate = itemBO.findById(replacementTM.getReplacedItemId()).getItemName();
+            lblItemQtyOnHand.setText(Integer.toString(itemBO.findById(replacementTM.getReplacedItemId()).getQuantity()));
+            lblItemPrice.setText(Double.toString(itemBO.findById(replacementTM.getReplacedItemId()).getPrice()));
             txtQty.setText(Integer.toString(replacementTM.getQty()));
             qtyForUpdate = replacementTM.getQty();
             txtRemarks.setText(replacementTM.getRemarks());

@@ -8,10 +8,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.LoginHistoryBO;
+import lk.ijse.gdse.pcstore.bo.custom.UserBO;
 import lk.ijse.gdse.pcstore.dto.LoginDTO;
 import lk.ijse.gdse.pcstore.dto.UserDTO;
-import lk.ijse.gdse.pcstore.model.LoginHistoryModel;
-import lk.ijse.gdse.pcstore.model.UserModel;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -32,8 +33,9 @@ public class LoginController {
     @FXML
     private TextField txtUserName;
 
-    private final UserModel userModel = new UserModel();
-    private final LoginHistoryModel loginHistoryModel = new LoginHistoryModel();
+    LoginHistoryBO loginHistoryBO = (LoginHistoryBO) BOFactory.getInstance().getBO(BOFactory.BOType.LOGIN_HISTORY);
+    UserBO userBO = (UserBO) BOFactory.getInstance().getBO(BOFactory.BOType.USER);
+
     private boolean isAdmin = true;
     private UserDTO userDTO;
 
@@ -85,7 +87,7 @@ public class LoginController {
     }
 
     public boolean verify(String username, String password, String role) throws SQLException {
-        userDTO = userModel.findByName(username);
+        userDTO = userBO.findByName(username);
         if (userDTO != null && userDTO.getPassword().equals(password) && role.equalsIgnoreCase(userDTO.getUserRole())) {
             return true;
         }
@@ -94,7 +96,7 @@ public class LoginController {
 
     public void login(UserDTO userDTO) {
         try {
-            if(loginHistoryModel.saveLogin(new LoginDTO(loginHistoryModel.getNextLoginId(), userDTO.getUserId(), LocalDate.now(), LocalTime.now()))) {
+            if(loginHistoryBO.save(new LoginDTO(loginHistoryBO.getNextId(), userDTO.getUserId(), LocalDate.now(), LocalTime.now()))) {
                 loginPane.getChildren().clear();
                 loginPane.getChildren().add(FXMLLoader.load(getClass().getResource("/view/MainLayout.fxml")));
             }

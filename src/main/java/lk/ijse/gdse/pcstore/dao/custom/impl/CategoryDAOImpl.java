@@ -61,7 +61,14 @@ public class CategoryDAOImpl implements CategoryDAO {
 
     @Override
     public ArrayList<String> getAllIds() throws SQLException {
-        return null;
+        ResultSet rst = SQLUtil.execute("select description from category");
+        ArrayList<String> categoryDescriptions = new ArrayList<>();
+
+        while (rst.next()) {
+            categoryDescriptions.add(rst.getString(1));
+        }
+
+        return categoryDescriptions;
     }
 
     @Override
@@ -78,7 +85,7 @@ public class CategoryDAOImpl implements CategoryDAO {
 
     @Override
     public Category findById(String id) throws SQLException {
-        ResultSet rst = SQLUtil.execute("select description from category where category_id=?", id);
+        ResultSet rst = SQLUtil.execute("select * from category where category_id=?", id);
 
         if (rst.next()) {
             return new Category(
@@ -92,7 +99,7 @@ public class CategoryDAOImpl implements CategoryDAO {
 
     @Override
     public Category findByName(String name) throws SQLException {
-        ResultSet rst = SQLUtil.execute("select category_id from category where description=?", name);
+        ResultSet rst = SQLUtil.execute("select * from category where description=?", name);
 
         if (rst.next()) {
             return new Category(

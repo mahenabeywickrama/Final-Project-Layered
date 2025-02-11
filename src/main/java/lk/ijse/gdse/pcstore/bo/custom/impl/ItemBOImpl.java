@@ -97,4 +97,9 @@ public class ItemBOImpl implements ItemBO {
                 suppliesItemDTO.getItemId()
         );
     }
+
+    @Override
+    public ArrayList<String> getAllItemNamesForCategory(String categoryId) throws SQLException {
+        return itemDAO.getAllItemNamesForCategory(categoryId);
+    }
 }

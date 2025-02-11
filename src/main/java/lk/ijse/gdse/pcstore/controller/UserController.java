@@ -8,12 +8,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.EmployeeBO;
+import lk.ijse.gdse.pcstore.bo.custom.UserBO;
 import lk.ijse.gdse.pcstore.dto.EmployeeDTO;
 import lk.ijse.gdse.pcstore.dto.UserDTO;
 import lk.ijse.gdse.pcstore.dto.tm.EmployeeTM;
 import lk.ijse.gdse.pcstore.dto.tm.UserTM;
-import lk.ijse.gdse.pcstore.model.EmployeeModel;
-import lk.ijse.gdse.pcstore.model.UserModel;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -89,7 +90,8 @@ public class UserController implements Initializable {
     @FXML
     private TextField txtUsername;
 
-    private final EmployeeModel employeeModel = new EmployeeModel();
+    EmployeeBO employeeBO = (EmployeeBO) BOFactory.getInstance().getBO(BOFactory.BOType.EMPLOYEE);
+    UserBO userBO = (UserBO) BOFactory.getInstance().getBO(BOFactory.BOType.USER);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -141,10 +143,8 @@ public class UserController implements Initializable {
         cmbRole.getItems().addAll(type);
     }
 
-    UserModel userModel = new UserModel();
-
     public void loadTableData() throws SQLException {
-        ArrayList<UserDTO> userDTOS = userModel.getAllUsers();
+        ArrayList<UserDTO> userDTOS = userBO.getAllUsers();
 
         ObservableList<UserTM> userTMS = FXCollections.observableArrayList();
 
@@ -166,19 +166,19 @@ public class UserController implements Initializable {
     }
 
     public void loadNextUserId() throws SQLException {
-        String nextUserId = userModel.getNextUserId();
+        String nextUserId = userBO.getNextUserId();
         lblUserId.setText(nextUserId);
     }
 
     public void loadEmployeeIds() throws SQLException {
-        ArrayList<String> employeeIds = employeeModel.getAllEmployeeIds();
+        ArrayList<String> employeeIds = employeeBO.getAllIds();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(employeeIds);
         cmbEmployeeId.setItems(observableList);
     }
 
     public void loadEmployeeNames() throws SQLException {
-        ArrayList<String> employeeNames = employeeModel.getAllEmployeeNames();
+        ArrayList<String> employeeNames = employeeBO.getAllNames();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(employeeNames);
         cmbEmployeeName.setItems(observableList);
@@ -193,7 +193,7 @@ public class UserController implements Initializable {
 
         if (optionalButtonType.isPresent() && optionalButtonType.get() == ButtonType.YES) {
 
-            boolean isDeleted = userModel.deleteUser(userId);
+            boolean isDeleted = userBO.deleteUser(userId);
             if (isDeleted) {
                 refreshPage();
                 new Alert(Alert.AlertType.INFORMATION, "User deleted...!").show();
@@ -229,6 +229,11 @@ public class UserController implements Initializable {
             return;
         }
 
+        if (isExists(employeeId)) {
+            new Alert(Alert.AlertType.ERROR, "Employee already exists!").show();
+            return;
+        }
+
         UserDTO userDTO = new UserDTO(
                 userId,
                 employeeId,
@@ -240,13 +245,22 @@ public class UserController implements Initializable {
                 role
         );
 
-        boolean isSaved = userModel.saveUser(userDTO);
+        boolean isSaved = userBO.saveUser(userDTO);
         if (isSaved) {
             refreshPage();
             new Alert(Alert.AlertType.INFORMATION, "User saved...!").show();
         } else {
             new Alert(Alert.AlertType.ERROR, "Fail to save user...!").show();
         }
+    }
+
+    public boolean isExists(String employeeId) {
+        for (UserTM userTM : tblUser.getItems()) {
+            if (userTM.getEmployeeId().equals(employeeId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @FXML
@@ -271,7 +285,7 @@ public class UserController implements Initializable {
                 role
         );
 
-        boolean isSaved = userModel.updateUser(userDTO);
+        boolean isSaved = userBO.updateUser(userDTO);
         if (isSaved) {
             refreshPage();
             new Alert(Alert.AlertType.INFORMATION, "User updated...!").show();
@@ -282,7 +296,9 @@ public class UserController implements Initializable {
 
     @FXML
     void cmbEmployeeIdOnAction(ActionEvent event) throws SQLException {
-        EmployeeDTO employeeDTO = employeeModel.findById(cmbEmployeeId.getValue());
+        if (cmbEmployeeId.getValue() == null) return;
+
+        EmployeeDTO employeeDTO = employeeBO.findById(cmbEmployeeId.getValue());
 
         if (employeeDTO != null) {
             addInfoToTextFields(employeeDTO);
@@ -292,7 +308,9 @@ public class UserController implements Initializable {
 
     @FXML
     void cmbEmployeeNameOnAction(ActionEvent event) throws SQLException {
-        EmployeeDTO employeeDTO = employeeModel.findByName(cmbEmployeeName.getValue());
+        if (cmbEmployeeName.getValue() == null) return;
+
+        EmployeeDTO employeeDTO = employeeBO.findByName(cmbEmployeeName.getValue());
 
         if (employeeDTO != null) {
             addInfoToTextFields(employeeDTO);

@@ -9,9 +9,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.CustomerBO;
 import lk.ijse.gdse.pcstore.dto.CustomerDTO;
 import lk.ijse.gdse.pcstore.dto.tm.CustomerTM;
-import lk.ijse.gdse.pcstore.model.CustomerModel;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -69,6 +70,8 @@ public class CustomerController implements Initializable {
     @FXML
     private TextField txtPhone;
 
+    CustomerBO customerBO = (CustomerBO) BOFactory.getInstance().getBO(BOFactory.BOType.CUSTOMER);
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         colCustomerId.setCellValueFactory(new PropertyValueFactory<>("customerId"));
@@ -102,10 +105,8 @@ public class CustomerController implements Initializable {
         txtAddress.setText("");
     }
 
-    CustomerModel customerModel = new CustomerModel();
-
     public void loadTableData() throws SQLException {
-        ArrayList<CustomerDTO> customerDTOS = customerModel.getAllCustomers();
+        ArrayList<CustomerDTO> customerDTOS = customerBO.getAll();
 
         ObservableList<CustomerTM> customerTMS = FXCollections.observableArrayList();
 
@@ -125,7 +126,7 @@ public class CustomerController implements Initializable {
     }
 
     public void loadNextCustomerId() throws SQLException {
-        String nextCustomerId = customerModel.getNextCustomerId();
+        String nextCustomerId = customerBO.getNextId();
         lblCustomerId.setText(nextCustomerId);
     }
 
@@ -138,7 +139,7 @@ public class CustomerController implements Initializable {
 
         if (optionalButtonType.isPresent() && optionalButtonType.get() == ButtonType.YES) {
 
-            boolean isDeleted = customerModel.deleteCustomer(customerId);
+            boolean isDeleted = customerBO.delete(customerId);
             if (isDeleted) {
                 refreshPage();
                 new Alert(Alert.AlertType.INFORMATION, "Customer deleted...!").show();
@@ -205,7 +206,7 @@ public class CustomerController implements Initializable {
                     email
             );
 
-            boolean isSaved = customerModel.saveCustomer(customerDTO);
+            boolean isSaved = customerBO.save(customerDTO);
             if (isSaved) {
                 refreshPage();
                 new Alert(Alert.AlertType.INFORMATION, "Customer saved...!").show();
@@ -271,7 +272,7 @@ public class CustomerController implements Initializable {
                     email
             );
 
-            boolean isUpdate = customerModel.updateCustomer(customerDTO);
+            boolean isUpdate = customerBO.update(customerDTO);
             if (isUpdate) {
                 refreshPage();
                 new Alert(Alert.AlertType.INFORMATION, "Customer update...!").show();

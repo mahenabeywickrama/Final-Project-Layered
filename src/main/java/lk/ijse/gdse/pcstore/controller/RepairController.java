@@ -8,13 +8,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.CustomerBO;
+import lk.ijse.gdse.pcstore.bo.custom.RepairBO;
 import lk.ijse.gdse.pcstore.dto.CustomerDTO;
 import lk.ijse.gdse.pcstore.dto.ItemDTO;
 import lk.ijse.gdse.pcstore.dto.RepairDTO;
 import lk.ijse.gdse.pcstore.dto.tm.ItemTM;
 import lk.ijse.gdse.pcstore.dto.tm.RepairTM;
-import lk.ijse.gdse.pcstore.model.CustomerModel;
-import lk.ijse.gdse.pcstore.model.RepairModel;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -79,6 +80,9 @@ public class RepairController implements Initializable {
     @FXML
     private TextField txtDescription;
 
+    CustomerBO customerBO = (CustomerBO) BOFactory.getInstance().getBO(BOFactory.BOType.CUSTOMER);
+    RepairBO repairBO = (RepairBO) BOFactory.getInstance().getBO(BOFactory.BOType.REPAIR);
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         colRepairId.setCellValueFactory(new PropertyValueFactory<>("repairId"));
@@ -113,11 +117,8 @@ public class RepairController implements Initializable {
         dpReturnDate.setValue(null);
     }
 
-    RepairModel repairModel = new RepairModel();
-    CustomerModel customerModel = new CustomerModel();
-
     private void loadTableData() throws SQLException {
-        ArrayList<RepairDTO> repairDTOS = repairModel.getAllRepair();
+        ArrayList<RepairDTO> repairDTOS = repairBO.getAll();
         ObservableList<RepairTM> repairTMS = FXCollections.observableArrayList();
 
         for (RepairDTO repairDTO : repairDTOS) {
@@ -136,19 +137,19 @@ public class RepairController implements Initializable {
     }
 
     private void loadNextRepairId() throws SQLException {
-        String nextRepairId = repairModel.getNextRepairId();
+        String nextRepairId = repairBO.getNextId();
         lblRepairId.setText(nextRepairId);
     }
 
     private void loadCmbCustomerId() throws SQLException {
-        ArrayList<String> customerIds = customerModel.getAllCustomerIds();
+        ArrayList<String> customerIds = customerBO.getAllIds();
         ObservableList<String> cmbCustomerIds = FXCollections.observableArrayList();
         cmbCustomerIds.addAll(customerIds);
         cmbCustomerId.setItems(cmbCustomerIds);
     }
 
     private void loadCmbCustomerNames() throws SQLException {
-        ArrayList<String> customerNames = customerModel.getAllCustomerNames();
+        ArrayList<String> customerNames = customerBO.getAllNames();
         ObservableList<String> cmbCustomerNames = FXCollections.observableArrayList();
         cmbCustomerNames.addAll(customerNames);
         cmbName.setItems(cmbCustomerNames);
@@ -163,7 +164,7 @@ public class RepairController implements Initializable {
 
         if (optionalButtonType.isPresent() && optionalButtonType.get() == ButtonType.YES) {
 
-            boolean isDeleted = repairModel.deleteRepair(repairId);
+            boolean isDeleted = repairBO.delete(repairId);
             if (isDeleted) {
                 refreshPage();
                 new Alert(Alert.AlertType.INFORMATION, "Repair deleted...!").show();
@@ -194,7 +195,7 @@ public class RepairController implements Initializable {
 
         RepairDTO repairDTO = new RepairDTO(repairId, customerId, description, status, receiveDate, returnDate);
 
-        boolean isSaved = repairModel.saveRepair(repairDTO);
+        boolean isSaved = repairBO.save(repairDTO);
         if (isSaved) {
             refreshPage();
             new Alert(Alert.AlertType.INFORMATION, "Repair saved...!").show();
@@ -214,7 +215,7 @@ public class RepairController implements Initializable {
 
         RepairDTO repairDTO = new RepairDTO(repairId, customerId, description, status, receiveDate, returnDate);
 
-        boolean isSaved = repairModel.updateRepair(repairDTO);
+        boolean isSaved = repairBO.update(repairDTO);
         if (isSaved) {
             refreshPage();
             new Alert(Alert.AlertType.INFORMATION, "Repair updated...!").show();
@@ -225,8 +226,9 @@ public class RepairController implements Initializable {
 
     @FXML
     void cmbCustomerOnAction(ActionEvent event) throws SQLException {
-        CustomerDTO customerDTO = customerModel.findById(cmbCustomerId.getValue());
+        if (cmbCustomerId.getValue() == null) return;
 
+        CustomerDTO customerDTO = customerBO.findById(cmbCustomerId.getValue());
         if (customerDTO != null) {
             cmbName.getSelectionModel().select(customerDTO.getCustomerName());
         }
@@ -234,8 +236,9 @@ public class RepairController implements Initializable {
 
     @FXML
     void cmbNameOnAction(ActionEvent event) throws SQLException {
-        CustomerDTO customerDTO = customerModel.findByName(cmbName.getValue());
+        if (cmbName.getValue() == null) return;
 
+        CustomerDTO customerDTO = customerBO.findByName(cmbName.getValue());
         if (customerDTO != null) {
             cmbCustomerId.getSelectionModel().select(customerDTO.getCustomerId());
         }
@@ -248,7 +251,7 @@ public class RepairController implements Initializable {
         if (repairTM != null) {
             lblRepairId.setText(repairTM.getRepairId());
             cmbCustomerId.setValue(repairTM.getCustomerId());
-            cmbName.setValue(customerModel.findById(repairTM.getCustomerId()).getCustomerName());
+            cmbName.setValue(customerBO.findById(repairTM.getCustomerId()).getCustomerName());
             txtDescription.setText(repairTM.getDescription());
             dpReceiveDate.setValue(repairTM.getReceiveDate());
             dpReturnDate.setValue(repairTM.getReturnDate());

@@ -10,9 +10,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Duration;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.*;
 import lk.ijse.gdse.pcstore.dto.*;
 import lk.ijse.gdse.pcstore.dto.tm.DashBoardTM;
-import lk.ijse.gdse.pcstore.model.*;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -82,14 +83,14 @@ public class DashBoardController implements Initializable {
     @FXML
     private TableView<DashBoardTM> tblOrders;
 
-    private final LoginHistoryModel loginHistoryModel = new LoginHistoryModel();
-    private final UserModel userModel = new UserModel();
-    private final EmployeeModel employeeModel = new EmployeeModel();
-    private final CustomerModel customerModel = new CustomerModel();
-    private final RepairModel repairModel = new RepairModel();
-    private final OrdersModel ordersModel = new OrdersModel();
-    private final PaymentModel paymentModel = new PaymentModel();
-    private final ReplacementModel replacementModel = new ReplacementModel();
+    CustomerBO customerBO = (CustomerBO) BOFactory.getInstance().getBO(BOFactory.BOType.CUSTOMER);
+    EmployeeBO employeeBO = (EmployeeBO) BOFactory.getInstance().getBO(BOFactory.BOType.EMPLOYEE);
+    LoginHistoryBO loginHistoryBO = (LoginHistoryBO) BOFactory.getInstance().getBO(BOFactory.BOType.LOGIN_HISTORY);
+    OrdersBO ordersBO = (OrdersBO) BOFactory.getInstance().getBO(BOFactory.BOType.ORDERS);
+    PaymentBO paymentBO = (PaymentBO) BOFactory.getInstance().getBO(BOFactory.BOType.PAYMENT);
+    RepairBO repairBO = (RepairBO) BOFactory.getInstance().getBO(BOFactory.BOType.REPAIR);
+    ReplacementBO replacementBO = (ReplacementBO) BOFactory.getInstance().getBO(BOFactory.BOType.REPLACEMENT);
+    UserBO userBO = (UserBO) BOFactory.getInstance().getBO(BOFactory.BOType.USER);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -121,18 +122,18 @@ public class DashBoardController implements Initializable {
     }
 
     public void loadTableData() throws SQLException {
-        ArrayList<DashBoardDTO> dashBoardDTOS = ordersModel.getAllOrders();
+        ArrayList<OrdersDTO> ordersDTOS = ordersBO.getAllOrders();
 
         ObservableList<DashBoardTM> dashBoardTMS = FXCollections.observableArrayList();
 
-        for (DashBoardDTO dashBoardDTO : dashBoardDTOS) {
+        for (OrdersDTO ordersDTO : ordersDTOS) {
             DashBoardTM dashBoardTM = new DashBoardTM(
-                    customerModel.findById(dashBoardDTO.getCustomerId()).getCustomerName(),
-                    employeeModel.findById(dashBoardDTO.getEmployeeId()).getEmployeeName(),
-                    dashBoardDTO.getTime(),
-                    dashBoardDTO.getType(),
-                    dashBoardDTO.getTotal(),
-                    dashBoardDTO.getStatus()
+                    customerBO.findById(ordersDTO.getCustomerId()).getCustomerName(),
+                    employeeBO.findById(ordersDTO.getEmployeeId()).getEmployeeName(),
+                    ordersDTO.getOrderTime().toLocalTime(),
+                    ordersDTO.getType(),
+                    ordersDTO.getOrderAmount(),
+                    ordersDTO.getOrderStatus()
             );
             dashBoardTMS.add(dashBoardTM);
         }
@@ -141,8 +142,8 @@ public class DashBoardController implements Initializable {
     }
 
     public void loadInfo() throws SQLException {
-        String currentEmployee = employeeModel.findById(userModel.findById(loginHistoryModel.getLastLogin()).getEmployeeId()).getEmployeeName();
-        String currentEmployeeRole = employeeModel.findByName(currentEmployee).getEmployeeRole();
+        String currentEmployee = employeeBO.findById(userBO.findById(loginHistoryBO.getLastLogin()).getEmployeeId()).getEmployeeName();
+        String currentEmployeeRole = employeeBO.findByName(currentEmployee).getEmployeeRole();
         lblEmployeeName.setText(currentEmployee);
         lblRank.setText(currentEmployeeRole);
     }
@@ -162,35 +163,35 @@ public class DashBoardController implements Initializable {
     }
 
     public void setTotalCustomerCount() throws SQLException {
-        ArrayList<CustomerDTO> customerDTOS = customerModel.getAllCustomers();
+        ArrayList<CustomerDTO> customerDTOS = customerBO.getAll();
         int customerCount = customerDTOS.size();
         lblTotalCostomer.setText(customerCount + "");
     }
 
     public void setTotalOrdersCount() throws SQLException {
-        ArrayList<DashBoardDTO> dashBoardDTOS = ordersModel.getAllOrders();
-        int ordersCount = dashBoardDTOS.size();
+        ArrayList<OrdersDTO> ordersDTOS = ordersBO.getAllOrders();
+        int ordersCount = ordersDTOS.size();
         lblTotalOrders.setText(ordersCount + "");
     }
 
     public void setTotalReplacements() throws SQLException {
-        ArrayList<ReplacementDTO> replacementDTOS = replacementModel.getAllReplacements();
+        ArrayList<ReplacementDTO> replacementDTOS = replacementBO.getAllReplacements();
         int replacementCount = replacementDTOS.size();
         lblTotalReplacements.setText(replacementCount + "");
     }
 
     public void setNonReturnedRepairCount() throws SQLException {
-        ArrayList<String> nonReturnedRepairs = repairModel.getAllRepairIds();
+        ArrayList<String> nonReturnedRepairs = repairBO.getAllIds();
         int repairCount = nonReturnedRepairs.size();
         lblTotalNonReturnedRepairs.setText(repairCount + "");
     }
 
     public void setTodaysOrdersCount() throws SQLException {
-        ArrayList<DashBoardDTO> dashBoardDTOS = ordersModel.getAllOrders();
+        ArrayList<OrdersDTO> ordersDTOS = ordersBO.getAllOrders();
         int ordersCount = 0;
 
-        for (DashBoardDTO dashBoardDTO : dashBoardDTOS) {
-            if (dashBoardDTO.getDate().equals(LocalDate.now())) {
+        for (OrdersDTO ordersDTO : ordersDTOS) {
+            if (ordersDTO.getOrderDate().toLocalDate().equals(LocalDate.now())) {
                 ordersCount++;
             }
         }
@@ -198,7 +199,7 @@ public class DashBoardController implements Initializable {
     }
 
     public void setTodaysIncome () throws SQLException {
-        ArrayList<PaymentDTO> paymentDTOS = paymentModel.getAllPayments();
+        ArrayList<PaymentDTO> paymentDTOS = paymentBO.getAllPayments();
         double totalIncome = 0;
 
         for (PaymentDTO paymentDTO : paymentDTOS) {

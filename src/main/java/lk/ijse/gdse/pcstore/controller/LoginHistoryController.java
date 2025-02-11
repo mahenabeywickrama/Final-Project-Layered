@@ -10,13 +10,14 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.EmployeeBO;
+import lk.ijse.gdse.pcstore.bo.custom.LoginHistoryBO;
+import lk.ijse.gdse.pcstore.bo.custom.UserBO;
 import lk.ijse.gdse.pcstore.dto.EmployeeDTO;
 import lk.ijse.gdse.pcstore.dto.LoginDTO;
 import lk.ijse.gdse.pcstore.dto.UserDTO;
 import lk.ijse.gdse.pcstore.dto.tm.LoginTM;
-import lk.ijse.gdse.pcstore.model.EmployeeModel;
-import lk.ijse.gdse.pcstore.model.LoginHistoryModel;
-import lk.ijse.gdse.pcstore.model.UserModel;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -65,9 +66,9 @@ public class LoginHistoryController implements Initializable {
     @FXML
     private TableView<LoginTM> tblLoginHistory;
 
-    private final LoginHistoryModel loginHistoryModel = new LoginHistoryModel();
-    private final UserModel userModel = new UserModel();
-    private final EmployeeModel employeeModel = new EmployeeModel();
+    EmployeeBO employeeBO = (EmployeeBO) BOFactory.getInstance().getBO(BOFactory.BOType.EMPLOYEE);
+    LoginHistoryBO loginHistoryBO = (LoginHistoryBO) BOFactory.getInstance().getBO(BOFactory.BOType.LOGIN_HISTORY);
+    UserBO userBO = (UserBO) BOFactory.getInstance().getBO(BOFactory.BOType.USER);
 
     ObservableList<LoginTM> loginTMS= FXCollections.observableArrayList();
 
@@ -81,8 +82,8 @@ public class LoginHistoryController implements Initializable {
         colRole.setCellValueFactory((new PropertyValueFactory<>("role")));
 
         try {
-            for (LoginDTO loginDTO : loginHistoryModel.getAllLogin()) {
-                UserDTO userDTO = userModel.findById(loginDTO.getUserId());
+            for (LoginDTO loginDTO : loginHistoryBO.getAll()) {
+                UserDTO userDTO = userBO.findById(loginDTO.getUserId());
                 LocalDate localDate = loginDTO.getDate();
                 LocalTime localTime = loginDTO.getTime();
                 loginTMS.add(new LoginTM(
@@ -103,8 +104,8 @@ public class LoginHistoryController implements Initializable {
     @FXML
     void onClickTable(MouseEvent event) throws SQLException {
         LoginTM loginTM = tblLoginHistory.getSelectionModel().getSelectedItem();
-        UserDTO userDTO = userModel.findById(loginTM.getUserId());
-        EmployeeDTO employeeDTO = employeeModel.findById(userDTO.getEmployeeId());
+        UserDTO userDTO = userBO.findById(loginTM.getUserId());
+        EmployeeDTO employeeDTO = employeeBO.findById(userDTO.getEmployeeId());
 
         if (loginTM != null) {
             lblEmployeeId.setText(userDTO.getEmployeeId());

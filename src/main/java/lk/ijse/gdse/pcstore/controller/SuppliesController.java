@@ -7,13 +7,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.ItemBO;
+import lk.ijse.gdse.pcstore.bo.custom.SupplierBO;
+import lk.ijse.gdse.pcstore.bo.custom.SuppliesBO;
 import lk.ijse.gdse.pcstore.dto.*;
 import lk.ijse.gdse.pcstore.dto.tm.ItemCartTM;
 import lk.ijse.gdse.pcstore.dto.tm.RepairCartTM;
 import lk.ijse.gdse.pcstore.dto.tm.SuppliesCartTM;
-import lk.ijse.gdse.pcstore.model.ItemModel;
-import lk.ijse.gdse.pcstore.model.SupplierModel;
-import lk.ijse.gdse.pcstore.model.SuppliesModel;
 
 import java.net.URL;
 import java.sql.Date;
@@ -83,9 +84,9 @@ public class SuppliesController implements Initializable {
     @FXML
     private TextField txtAddToCartQty;
 
-    private final SuppliesModel suppliesModel = new SuppliesModel();
-    private final SupplierModel supplierModel = new SupplierModel();
-    private final ItemModel itemModel = new ItemModel();
+    ItemBO itemBO = (ItemBO) BOFactory.getInstance().getBO(BOFactory.BOType.ITEM);
+    SupplierBO supplierBO = (SupplierBO) BOFactory.getInstance().getBO(BOFactory.BOType.SUPPLIER);
+    SuppliesBO suppliesBO = (SuppliesBO) BOFactory.getInstance().getBO(BOFactory.BOType.SUPPLIES);
 
     private final ObservableList<SuppliesCartTM> suppliesCartTMObservableList = FXCollections.observableArrayList();
 
@@ -114,7 +115,7 @@ public class SuppliesController implements Initializable {
     }
 
     public void refreshPage() throws SQLException {
-        lblSuppliesId.setText(suppliesModel.getNextSuppliesId());
+        lblSuppliesId.setText(suppliesBO.getNextSuppliesId());
         suppliesDate.setText(LocalDate.now().toString());
 
         loadSupplierIds();
@@ -142,28 +143,28 @@ public class SuppliesController implements Initializable {
     }
 
     public void loadSupplierIds() throws SQLException {
-        ArrayList<String> supplierIds = supplierModel.getAllSupplierIds();
+        ArrayList<String> supplierIds = supplierBO.getAllSupplierIds();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(supplierIds);
         cmbSupplierId.setItems(observableList);
     }
 
     public void loadSupplierNames() throws SQLException {
-        ArrayList<String> supplierNames = supplierModel.getAllSupplierNames();
+        ArrayList<String> supplierNames = supplierBO.getAllSupplierNames();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(supplierNames);
         cmbSupplierName.setItems(observableList);
     }
 
     public void loadItemIds() throws SQLException {
-        ArrayList<String> itemIds = itemModel.getAllItemIds();
+        ArrayList<String> itemIds = itemBO.getAllIds();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(itemIds);
         cmbItemId.setItems(observableList);
     }
 
     public void loadItemNames() throws SQLException {
-        ArrayList<String> itemNames = itemModel.getAllItemNames();
+        ArrayList<String> itemNames = itemBO.getAllNames();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(itemNames);
         cmbItemName.setItems(observableList);
@@ -278,7 +279,7 @@ public class SuppliesController implements Initializable {
                 suppliesItemDTOS
         );
 
-        boolean isSaved = suppliesModel.saveSupplies(suppliesDTO);
+        boolean isSaved = suppliesBO.saveSupplies(suppliesDTO);
 
         if (isSaved) {
             new Alert(Alert.AlertType.INFORMATION, "Supplies saved..!").show();
@@ -295,7 +296,9 @@ public class SuppliesController implements Initializable {
 
     @FXML
     void cmbItemIdOnAction(ActionEvent event) throws SQLException {
-        ItemDTO itemDTO = itemModel.findById(cmbItemId.getValue());
+        if (cmbItemId.getValue() == null) return;
+
+        ItemDTO itemDTO = itemBO.findById(cmbItemId.getValue());
 
         if (itemDTO != null) {
             cmbItemName.getSelectionModel().select(itemDTO.getItemName());
@@ -304,7 +307,9 @@ public class SuppliesController implements Initializable {
 
     @FXML
     void cmbItemNameOnAction(ActionEvent event) throws SQLException {
-        ItemDTO itemDTO = itemModel.findByName(cmbItemName.getValue());
+        if (cmbItemName.getValue() == null) return;
+
+        ItemDTO itemDTO = itemBO.findByName(cmbItemName.getValue());
 
         if (itemDTO != null) {
             cmbItemId.getSelectionModel().select(itemDTO.getItemId());
@@ -315,7 +320,9 @@ public class SuppliesController implements Initializable {
 
     @FXML
     void cmbSupplierIdOnAction(ActionEvent event) throws SQLException {
-        SupplierDTO supplierDTO = supplierModel.findById(cmbSupplierId.getValue());
+        if (cmbSupplierId.getValue() == null) return;
+
+        SupplierDTO supplierDTO = supplierBO.findById(cmbSupplierId.getValue());
 
         if (supplierDTO != null) {
             cmbSupplierName.getSelectionModel().select(supplierDTO.getSupplierName());
@@ -324,7 +331,9 @@ public class SuppliesController implements Initializable {
 
     @FXML
     void cmbSupplierNameOnAction(ActionEvent event) throws SQLException {
-        SupplierDTO supplierDTO = supplierModel.findByName(cmbSupplierName.getValue());
+        if (cmbSupplierName.getValue() == null) return;
+
+        SupplierDTO supplierDTO = supplierBO.findByName(cmbSupplierName.getValue());
 
         if (supplierDTO != null) {
             cmbSupplierId.getSelectionModel().select(supplierDTO.getSupplierId());

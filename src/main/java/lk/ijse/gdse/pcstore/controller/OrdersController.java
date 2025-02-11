@@ -8,10 +8,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.*;
 import lk.ijse.gdse.pcstore.dto.*;
 import lk.ijse.gdse.pcstore.dto.tm.ItemCartTM;
 import lk.ijse.gdse.pcstore.dto.tm.RepairCartTM;
-import lk.ijse.gdse.pcstore.model.*;
 
 import java.net.URL;
 import java.sql.Date;
@@ -105,11 +106,11 @@ public class OrdersController implements Initializable {
     @FXML
     private TextField txtAddToCartQty;
 
-    private final OrdersModel ordersModel = new OrdersModel();
-    private final CustomerModel customerModel = new CustomerModel();
-    private final EmployeeModel employeeModel = new EmployeeModel();
-    private final ItemModel itemModel = new ItemModel();
-    private final RepairModel repairModel = new RepairModel();
+    CustomerBO customerBO = (CustomerBO) BOFactory.getInstance().getBO(BOFactory.BOType.CUSTOMER);
+    EmployeeBO employeeBO = (EmployeeBO) BOFactory.getInstance().getBO(BOFactory.BOType.EMPLOYEE);
+    ItemBO itemBO = (ItemBO) BOFactory.getInstance().getBO(BOFactory.BOType.ITEM);
+    OrdersBO ordersBO = (OrdersBO) BOFactory.getInstance().getBO(BOFactory.BOType.ORDERS);
+    RepairBO repairBO = (RepairBO) BOFactory.getInstance().getBO(BOFactory.BOType.REPAIR);
 
     private final ObservableList<ItemCartTM> itemCartTMObservableList = FXCollections.observableArrayList();
     private final ObservableList<RepairCartTM> repairCartTMObservableList = FXCollections.observableArrayList();
@@ -143,7 +144,7 @@ public class OrdersController implements Initializable {
     }
 
     public void refreshPage() throws SQLException {
-        lblOrderId.setText(ordersModel.getNextOrderId());
+        lblOrderId.setText(ordersBO.getNextOrderId());
         orderDate.setText(LocalDate.now().toString());
 
         loadCustomerIds();
@@ -182,49 +183,49 @@ public class OrdersController implements Initializable {
     }
 
     public void loadCustomerIds() throws SQLException {
-        ArrayList<String> customerIds = customerModel.getAllCustomerIds();
+        ArrayList<String> customerIds = customerBO.getAllIds();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(customerIds);
         cmbCustomerId.setItems(observableList);
     }
 
     public void loadCustomerNames() throws SQLException {
-        ArrayList<String> customerNames = customerModel.getAllCustomerNames();
+        ArrayList<String> customerNames = customerBO.getAllNames();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(customerNames);
         cmbCustomerName.setItems(observableList);
     }
 
     public void loadEmployeeIds() throws SQLException {
-        ArrayList<String> employeeIds = employeeModel.getAllEmployeeIds();
+        ArrayList<String> employeeIds = employeeBO.getAllIds();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(employeeIds);
         cmbEmployeeId.setItems(observableList);
     }
 
     public void loadEmployeeNames() throws SQLException {
-        ArrayList<String> employeeNames = employeeModel.getAllEmployeeNames();
+        ArrayList<String> employeeNames = employeeBO.getAllNames();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(employeeNames);
         cmbEmployeeName.setItems(observableList);
     }
 
     public void loadItemIds() throws SQLException {
-        ArrayList<String> itemIds = itemModel.getAllItemIds();
+        ArrayList<String> itemIds = itemBO.getAllIds();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(itemIds);
         cmbItemId.setItems(observableList);
     }
 
     public void loadItemNames() throws SQLException {
-        ArrayList<String> itemNames = itemModel.getAllItemNames();
+        ArrayList<String> itemNames = itemBO.getAllNames();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(itemNames);
         cmbItemName.setItems(observableList);
     }
 
     public void loadRepairIds() throws SQLException {
-        ArrayList<String> repairIds = repairModel.getAllRepairIds();
+        ArrayList<String> repairIds = repairBO.getAllIds();
         ObservableList<String> observableList = FXCollections.observableArrayList();
         observableList.addAll(repairIds);
         cmbRepairId.setItems(observableList);
@@ -364,7 +365,7 @@ public class OrdersController implements Initializable {
                 ordersRepairDTOS
         );
 
-        boolean isSaved = ordersModel.saveOrder(ordersDTO);
+        boolean isSaved = ordersBO.saveOrder(ordersDTO);
 
         if (isSaved) {
             new Alert(Alert.AlertType.INFORMATION, "Order saved..!").show();
@@ -386,7 +387,7 @@ public class OrdersController implements Initializable {
 
         if (!repairCartTMObservableList.isEmpty()) {
             String currentCustomerId = cmbCustomerId.getValue();
-            String firstCustomerId = repairModel.searchRepairId(repairCartTMObservableList.get(0).getRepairId());
+            String firstCustomerId = repairBO.searchRepairId(repairCartTMObservableList.get(0).getRepairId());
 
             if (!currentCustomerId.equals(firstCustomerId)){
                 new Alert(Alert.AlertType.ERROR, "Please select a repair with a different customer..!").show();
@@ -472,7 +473,9 @@ public class OrdersController implements Initializable {
 
     @FXML
     void cmbCustomerIdOnAction(ActionEvent event) throws SQLException {
-        CustomerDTO customerDTO = customerModel.findById(cmbCustomerId.getValue());
+        if (cmbCustomerId.getValue() == null) return;
+
+        CustomerDTO customerDTO = customerBO.findById(cmbCustomerId.getValue());
 
         if (customerDTO != null) {
             cmbCustomerName.getSelectionModel().select(customerDTO.getCustomerName());
@@ -481,7 +484,9 @@ public class OrdersController implements Initializable {
 
     @FXML
     void cmbCustomerNameOnAction(ActionEvent event) throws SQLException {
-        CustomerDTO customerDTO = customerModel.findByName(cmbCustomerName.getValue());
+        if (cmbCustomerName.getValue() == null) return;
+
+        CustomerDTO customerDTO = customerBO.findByName(cmbCustomerName.getValue());
 
         if (customerDTO != null) {
             cmbCustomerId.getSelectionModel().select(customerDTO.getCustomerId());
@@ -490,7 +495,9 @@ public class OrdersController implements Initializable {
 
     @FXML
     void cmbEmployeeIdOnAction(ActionEvent event) throws SQLException {
-        EmployeeDTO employeeDTO = employeeModel.findById(cmbEmployeeId.getValue());
+        if (cmbEmployeeId.getValue() == null) return;
+
+        EmployeeDTO employeeDTO = employeeBO.findById(cmbEmployeeId.getValue());
 
         if (employeeDTO != null) {
             cmbEmployeeName.getSelectionModel().select(employeeDTO.getEmployeeName());
@@ -499,7 +506,9 @@ public class OrdersController implements Initializable {
 
     @FXML
     void cmbEmployeeNameOnAction(ActionEvent event) throws SQLException {
-        EmployeeDTO employeeDTO = employeeModel.findByName(cmbEmployeeName.getValue());
+        if (cmbEmployeeName.getValue() == null) return;
+
+        EmployeeDTO employeeDTO = employeeBO.findByName(cmbEmployeeName.getValue());
 
         if (employeeDTO != null) {
             cmbEmployeeId.getSelectionModel().select(employeeDTO.getEmployeeId());
@@ -508,7 +517,9 @@ public class OrdersController implements Initializable {
 
     @FXML
     void cmbItemIdOnAction(ActionEvent event) throws SQLException {
-        ItemDTO itemDTO = itemModel.findById(cmbItemId.getValue());
+        if (cmbItemId.getValue() == null) return;
+
+        ItemDTO itemDTO = itemBO.findById(cmbItemId.getValue());
 
         if (itemDTO != null) {
             cmbItemName.getSelectionModel().select(itemDTO.getItemName());
@@ -517,7 +528,9 @@ public class OrdersController implements Initializable {
 
     @FXML
     void cmbItemNameOnAction(ActionEvent event) throws SQLException {
-        ItemDTO itemDTO = itemModel.findByName(cmbItemName.getValue());
+        if (cmbItemName.getValue() == null) return;
+
+        ItemDTO itemDTO = itemBO.findByName(cmbItemName.getValue());
 
         if (itemDTO != null) {
             cmbItemId.getSelectionModel().select(itemDTO.getItemId());
@@ -528,11 +541,13 @@ public class OrdersController implements Initializable {
 
     @FXML
     void cmbRepairOnAction(ActionEvent event) throws SQLException {
-        RepairDTO repairDTO = repairModel.findById(cmbRepairId.getValue());
+        if (cmbRepairId.getValue() == null) return;
+
+        RepairDTO repairDTO = repairBO.findById(cmbRepairId.getValue());
 
         if (repairDTO != null) {
             lblRepairDescription.setText(repairDTO.getDescription());
-            CustomerDTO customerDTO = customerModel.findById(repairDTO.getCustomerId());
+            CustomerDTO customerDTO = customerBO.findById(repairDTO.getCustomerId());
             cmbCustomerId.setValue(customerDTO.getCustomerId());
             cmbCustomerName.setValue(customerDTO.getCustomerName());
             customerCmbDisable(true);

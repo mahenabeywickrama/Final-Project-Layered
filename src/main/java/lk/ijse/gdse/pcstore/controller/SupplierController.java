@@ -8,12 +8,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.SupplierBO;
 import lk.ijse.gdse.pcstore.dto.CustomerDTO;
 import lk.ijse.gdse.pcstore.dto.SupplierDTO;
 import lk.ijse.gdse.pcstore.dto.tm.CustomerTM;
 import lk.ijse.gdse.pcstore.dto.tm.SupplierTM;
-import lk.ijse.gdse.pcstore.model.CustomerModel;
-import lk.ijse.gdse.pcstore.model.SupplierModel;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -71,6 +71,8 @@ public class SupplierController implements Initializable {
     @FXML
     private TextField txtPhone;
 
+    SupplierBO supplierBO = (SupplierBO) BOFactory.getInstance().getBO(BOFactory.BOType.SUPPLIER);
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         colSupplierId.setCellValueFactory(new PropertyValueFactory<>("supplierId"));
@@ -104,10 +106,8 @@ public class SupplierController implements Initializable {
         txtAddress.setText("");
     }
 
-    SupplierModel supplierModel = new SupplierModel();
-
     public void loadTableData() throws SQLException {
-        ArrayList<SupplierDTO> supplierDTOS = supplierModel.getAllSuppliers();
+        ArrayList<SupplierDTO> supplierDTOS = supplierBO.getAllSuppliers();
 
         ObservableList<SupplierTM> supplierTMS = FXCollections.observableArrayList();
 
@@ -127,7 +127,7 @@ public class SupplierController implements Initializable {
     }
 
     public void loadNextSupplierId() throws SQLException {
-        String nextSupplierId = supplierModel.getNextSupplierId();
+        String nextSupplierId = supplierBO.getNextSupplierId();
         lblSupplierId.setText(nextSupplierId);
     }
 
@@ -140,7 +140,7 @@ public class SupplierController implements Initializable {
 
         if (optionalButtonType.isPresent() && optionalButtonType.get() == ButtonType.YES) {
 
-            boolean isDeleted = supplierModel.deleteSupplier(supplierId);
+            boolean isDeleted = supplierBO.deleteSupplier(supplierId);
             if (isDeleted) {
                 refreshPage();
                 new Alert(Alert.AlertType.INFORMATION, "Supplier deleted...!").show();
@@ -168,7 +168,7 @@ public class SupplierController implements Initializable {
                 email
         );
 
-        boolean isSaved = supplierModel.saveSupplier(supplierDTO);
+        boolean isSaved = supplierBO.saveSupplier(supplierDTO);
         if (isSaved) {
             refreshPage();
             new Alert(Alert.AlertType.INFORMATION, "Supplier saved...!").show();
@@ -195,7 +195,7 @@ public class SupplierController implements Initializable {
                 email
         );
 
-        boolean isUpdate = supplierModel.updateSupplier(supplierDTO);
+        boolean isUpdate = supplierBO.updateSupplier(supplierDTO);
         if (isUpdate) {
             refreshPage();
             new Alert(Alert.AlertType.INFORMATION, "Supplier update...!").show();

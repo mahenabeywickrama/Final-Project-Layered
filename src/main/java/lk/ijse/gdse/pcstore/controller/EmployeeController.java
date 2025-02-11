@@ -8,12 +8,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.EmployeeBO;
 import lk.ijse.gdse.pcstore.dto.CustomerDTO;
 import lk.ijse.gdse.pcstore.dto.EmployeeDTO;
 import lk.ijse.gdse.pcstore.dto.tm.CustomerTM;
 import lk.ijse.gdse.pcstore.dto.tm.EmployeeTM;
-import lk.ijse.gdse.pcstore.model.CustomerModel;
-import lk.ijse.gdse.pcstore.model.EmployeeModel;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -74,6 +74,8 @@ public class EmployeeController implements Initializable {
     @FXML
     private TextField txtPhone;
 
+    EmployeeBO employeeBO = (EmployeeBO) BOFactory.getInstance().getBO(BOFactory.BOType.EMPLOYEE);
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         colEmployeeId.setCellValueFactory(new PropertyValueFactory<>("employeeId"));
@@ -113,10 +115,8 @@ public class EmployeeController implements Initializable {
         cmbRole.getItems().addAll(type);
     }
 
-    EmployeeModel employeeModel = new EmployeeModel();
-
     public void loadTableData() throws SQLException {
-        ArrayList<EmployeeDTO> employeeDTOS = employeeModel.getAllEmployees();
+        ArrayList<EmployeeDTO> employeeDTOS = employeeBO.getAll();
 
         ObservableList<EmployeeTM> employeeTMS = FXCollections.observableArrayList();
 
@@ -136,7 +136,7 @@ public class EmployeeController implements Initializable {
     }
 
     public void loadNextEmployeeId() throws SQLException {
-        String nextEmployeeId = employeeModel.getNextEmployeeId();
+        String nextEmployeeId = employeeBO.getNextId();
         lblEmployeeId.setText(nextEmployeeId);
     }
 
@@ -149,7 +149,7 @@ public class EmployeeController implements Initializable {
 
         if (optionalButtonType.isPresent() && optionalButtonType.get() == ButtonType.YES) {
 
-            boolean isDeleted = employeeModel.deleteEmployee(employeeId);
+            boolean isDeleted = employeeBO.delete(employeeId);
             if (isDeleted) {
                 refreshPage();
                 new Alert(Alert.AlertType.INFORMATION, "Employee deleted...!").show();
@@ -214,7 +214,7 @@ public class EmployeeController implements Initializable {
                     role
             );
 
-            boolean isSaved = employeeModel.saveEmployee(employeeDTO);
+            boolean isSaved = employeeBO.save(employeeDTO);
             if (isSaved) {
                 refreshPage();
                 new Alert(Alert.AlertType.INFORMATION, "Employee saved...!").show();
@@ -274,7 +274,7 @@ public class EmployeeController implements Initializable {
                     role
             );
 
-            boolean isSaved = employeeModel.updateEmployee(employeeDTO);
+            boolean isSaved = employeeBO.update(employeeDTO);
             if (isSaved) {
                 refreshPage();
                 new Alert(Alert.AlertType.INFORMATION, "Employee updated...!").show();

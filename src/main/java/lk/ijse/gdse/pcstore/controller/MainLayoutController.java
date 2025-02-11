@@ -8,10 +8,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.layout.AnchorPane;
+import lk.ijse.gdse.pcstore.bo.BOFactory;
+import lk.ijse.gdse.pcstore.bo.custom.LoginHistoryBO;
+import lk.ijse.gdse.pcstore.bo.custom.UserBO;
 import lk.ijse.gdse.pcstore.dto.LoginDTO;
 import lk.ijse.gdse.pcstore.dto.UserDTO;
-import lk.ijse.gdse.pcstore.model.LoginHistoryModel;
-import lk.ijse.gdse.pcstore.model.UserModel;
 
 import java.io.IOException;
 import java.net.URL;
@@ -66,15 +67,16 @@ public class MainLayoutController implements Initializable {
     @FXML
     private AnchorPane mainPane;
 
-    private final LoginHistoryModel loginHistoryModel = new LoginHistoryModel();
-    private final UserModel userModel = new UserModel();
+    LoginHistoryBO loginHistoryBO = (LoginHistoryBO) BOFactory.getInstance().getBO(BOFactory.BOType.LOGIN_HISTORY);
+    UserBO userBO = (UserBO) BOFactory.getInstance().getBO(BOFactory.BOType.USER);
+
     private boolean isAdmin = false;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-            String lastLogin = loginHistoryModel.getLastLogin();
-            UserDTO lastUser = userModel.findById(lastLogin);
+            String lastLogin = loginHistoryBO.getLastLogin();
+            UserDTO lastUser = userBO.findById(lastLogin);
 
             if (lastUser != null) {
                 if (lastUser.getUserRole().equals("ADMIN")) {
@@ -195,6 +197,7 @@ public class MainLayoutController implements Initializable {
             content.getChildren().add(load);
         } catch (IOException e) {
             new Alert(Alert.AlertType.ERROR, "Fail to load ui!").show();
+            e.printStackTrace();
         }
     }
 

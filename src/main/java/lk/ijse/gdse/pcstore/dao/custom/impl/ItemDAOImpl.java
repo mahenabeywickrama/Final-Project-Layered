@@ -133,6 +133,7 @@ public class ItemDAOImpl implements ItemDAO {
         return null;
     }
 
+    @Override
     public ArrayList<String> getAllItemNamesForCategory(String categoryId) throws SQLException {
         ResultSet rst = SQLUtil.execute("select description from item where category_id=?", categoryId);
         ArrayList<String> itemNames = new ArrayList<>();

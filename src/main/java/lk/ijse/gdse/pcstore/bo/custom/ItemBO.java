@@ -23,4 +23,5 @@ public interface ItemBO extends SuperBO {
     boolean reduceQtyByReplacement(ReplacementDTO replacementDTO) throws SQLException;
     boolean increaseQtyByReplacement(ReplacementDTO replacementDTO) throws SQLException;
     boolean increaseQty(SuppliesItemDTO suppliesItemDTO) throws SQLException;
+    ArrayList<String> getAllItemNamesForCategory(String categoryId) throws SQLException;
 }
