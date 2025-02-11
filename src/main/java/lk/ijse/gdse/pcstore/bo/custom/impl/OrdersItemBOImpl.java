@@ -1,5 +1,6 @@
 package lk.ijse.gdse.pcstore.bo.custom.impl;
 
+import lk.ijse.gdse.pcstore.bo.BOFactory;
 import lk.ijse.gdse.pcstore.bo.custom.ItemBO;
 import lk.ijse.gdse.pcstore.bo.custom.OrdersItemBO;
 import lk.ijse.gdse.pcstore.dao.DAOFactory;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 public class OrdersItemBOImpl implements OrdersItemBO {
 
     OrdersItemDAO ordersItemDAO = (OrdersItemDAO) DAOFactory.getInstance().getDAO(DAOFactory.DAOType.ORDERS_ITEM);
-    ItemBO itemBO = new ItemBOImpl();
+    ItemBO itemBO = (ItemBO) BOFactory.getInstance().getBO(BOFactory.BOType.ITEM);
 
     @Override
     public boolean saveOrderDetailsList(ArrayList<OrdersItemDTO> ordersItemDTOS) throws SQLException {

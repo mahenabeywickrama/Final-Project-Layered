@@ -1,5 +1,6 @@
 package lk.ijse.gdse.pcstore.bo.custom.impl;
 
+import lk.ijse.gdse.pcstore.bo.BOFactory;
 import lk.ijse.gdse.pcstore.bo.custom.SuppliesBO;
 import lk.ijse.gdse.pcstore.bo.custom.SuppliesItemBO;
 import lk.ijse.gdse.pcstore.dao.DAOFactory;
@@ -16,7 +17,7 @@ import java.sql.SQLException;
 public class SuppliesBOImpl implements SuppliesBO {
 
     SuppliesDAO suppliesDAO = (SuppliesDAO) DAOFactory.getInstance().getDAO(DAOFactory.DAOType.SUPPLIES);
-    SuppliesItemBO suppliesItemBO = new SuppliesItemBOImpl();
+    SuppliesItemBO suppliesItemBO = (SuppliesItemBO) BOFactory.getInstance().getBO(BOFactory.BOType.SUPPLIES_ITEM);
 
     @Override
     public String getNextSuppliesId() throws SQLException {

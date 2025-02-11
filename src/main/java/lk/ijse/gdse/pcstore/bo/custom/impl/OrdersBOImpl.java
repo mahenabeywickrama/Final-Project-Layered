@@ -1,5 +1,6 @@
 package lk.ijse.gdse.pcstore.bo.custom.impl;
 
+import lk.ijse.gdse.pcstore.bo.BOFactory;
 import lk.ijse.gdse.pcstore.bo.custom.OrdersBO;
 import lk.ijse.gdse.pcstore.bo.custom.OrdersItemBO;
 import lk.ijse.gdse.pcstore.bo.custom.OrdersRepairBO;
@@ -21,8 +22,8 @@ import java.util.ArrayList;
 public class OrdersBOImpl implements OrdersBO {
 
     OrdersDAO ordersDAO = (OrdersDAO) DAOFactory.getInstance().getDAO(DAOFactory.DAOType.ORDERS);
-    OrdersItemBO ordersItemBO = new OrdersItemBOImpl();
-    OrdersRepairBO ordersRepairBO = new OrdersRepairBOImpl();
+    OrdersItemBO ordersItemBO = (OrdersItemBO) BOFactory.getInstance().getBO(BOFactory.BOType.ORDERS_ITEM);
+    OrdersRepairBO ordersRepairBO = (OrdersRepairBO) BOFactory.getInstance().getBO(BOFactory.BOType.ORDERS_REPAIR);
 
     @Override
     public String getNextOrderId() throws SQLException {

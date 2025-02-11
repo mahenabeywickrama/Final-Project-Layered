@@ -1,12 +1,13 @@
 package lk.ijse.gdse.pcstore.bo.custom;
 
+import lk.ijse.gdse.pcstore.bo.SuperBO;
 import lk.ijse.gdse.pcstore.dao.SuperDAO;
 import lk.ijse.gdse.pcstore.dto.EmployeeDTO;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public interface EmployeeBO extends SuperDAO {
+public interface EmployeeBO extends SuperBO {
     String getNextId() throws SQLException;
     ArrayList<EmployeeDTO> getAll() throws SQLException;
     boolean save(EmployeeDTO dto) throws SQLException;

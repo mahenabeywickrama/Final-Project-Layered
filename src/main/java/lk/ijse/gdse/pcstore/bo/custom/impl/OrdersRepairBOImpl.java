@@ -1,5 +1,6 @@
 package lk.ijse.gdse.pcstore.bo.custom.impl;
 
+import lk.ijse.gdse.pcstore.bo.BOFactory;
 import lk.ijse.gdse.pcstore.bo.custom.OrdersRepairBO;
 import lk.ijse.gdse.pcstore.bo.custom.RepairBO;
 import lk.ijse.gdse.pcstore.dao.DAOFactory;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 public class OrdersRepairBOImpl implements OrdersRepairBO {
 
     OrdersRepairDAO ordersRepairDAO = (OrdersRepairDAO) DAOFactory.getInstance().getDAO(DAOFactory.DAOType.ORDERS_REPAIR);
-    RepairBO repairBO = new RepairBOImpl();
+    RepairBO repairBO = (RepairBO) BOFactory.getInstance().getBO(BOFactory.BOType.REPAIR);
 
     @Override
     public boolean addDetails(ArrayList<OrdersRepairDTO> ordersRepairDTOS) throws SQLException {
