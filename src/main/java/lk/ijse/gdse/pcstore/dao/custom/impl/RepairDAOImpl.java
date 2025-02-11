@@ -4,6 +4,7 @@ import lk.ijse.gdse.pcstore.dao.SQLUtil;
 import lk.ijse.gdse.pcstore.dao.custom.RepairDAO;
 import lk.ijse.gdse.pcstore.dto.OrdersRepairDTO;
 import lk.ijse.gdse.pcstore.dto.RepairDTO;
+import lk.ijse.gdse.pcstore.entity.OrdersRepair;
 import lk.ijse.gdse.pcstore.entity.Repair;
 
 import java.sql.ResultSet;
@@ -121,12 +122,12 @@ public class RepairDAOImpl implements RepairDAO {
     }
 
     @Override
-    public boolean updateRepairForOrders(OrdersRepairDTO ordersRepairDTO) throws SQLException {
+    public boolean updateRepairForOrders(OrdersRepair ordersRepair) throws SQLException {
         return SQLUtil.execute(
                 "update repair set status = ?, returned_date = ? where repair_id = ?",
                 "RETURNED",
                 LocalDate.now(),
-                ordersRepairDTO.getRepairId()
+                ordersRepair.getRepairId()
         );
     }
 }

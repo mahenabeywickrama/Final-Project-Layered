@@ -4,10 +4,10 @@ import lk.ijse.gdse.pcstore.db.DBConnection;
 import lk.ijse.gdse.pcstore.dto.DashBoardDTO;
 import lk.ijse.gdse.pcstore.dto.OrdersDTO;
 import lk.ijse.gdse.pcstore.dao.SQLUtil;
+import lk.ijse.gdse.pcstore.dto.OrdersItemDTO;
+import lk.ijse.gdse.pcstore.dto.OrdersRepairDTO;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -152,4 +152,59 @@ public class OrdersModel {
     public boolean updateOrdersPending(String ordersId) throws SQLException {
         return SQLUtil.execute("update orders set status = 'PENDING' where orders_id = ?", ordersId);
     }
+
+    public ArrayList<OrdersDTO> getAllOrderDTOs() throws SQLException {
+        ResultSet rst = SQLUtil.execute("select * from orders");
+
+        ArrayList<OrdersDTO> ordersDTODS = new ArrayList<>();
+
+        while (rst.next()) {
+            OrdersDTO ordersDTO = new OrdersDTO(
+                    rst.getString(1),
+                    rst.getString(2),
+                    rst.getString(3),
+                    Date.valueOf(rst.getString(4)),
+                    Time.valueOf(rst.getString(5)),
+                    rst.getString(6),
+                    Double.parseDouble(rst.getString(7)),
+                    rst.getString(8),
+                    getAllOrderItemDTOs(rst.getString(1)),
+                    getAllOrderRepairDTOs(rst.getString(1))
+            );
+            ordersDTODS.add(ordersDTO);
+        }
+        return ordersDTODS;
+    }
+
+    public ArrayList<OrdersItemDTO> getAllOrderItemDTOs(String id) throws SQLException {
+        ResultSet rst = SQLUtil.execute("select * from orders_item where orders_id = ?", id);
+        ArrayList<OrdersItemDTO> ordersItemDTOS = new ArrayList<>();
+        while (rst.next()) {
+            OrdersItemDTO ordersItemDTO = new OrdersItemDTO(
+                    rst.getString(1),
+                    rst.getString(2),
+                    Integer.parseInt(rst.getString(3)),
+                    Double.parseDouble(rst.getString(4))
+            );
+            ordersItemDTOS.add(ordersItemDTO);
+        }
+
+        return ordersItemDTOS;
+    }
+
+    public ArrayList<OrdersRepairDTO> getAllOrderRepairDTOs(String id) throws SQLException {
+        ResultSet rst = SQLUtil.execute("select * from orders_repair where orders_id = ?", id);
+        ArrayList<OrdersRepairDTO> ordersRepairDTOS = new ArrayList<>();
+        while (rst.next()) {
+            OrdersRepairDTO ordersRepairDTO = new OrdersRepairDTO(
+                    rst.getString(1),
+                    rst.getString(2),
+                    Double.parseDouble(rst.getString(3))
+            );
+            ordersRepairDTOS.add(ordersRepairDTO);
+        }
+
+        return ordersRepairDTOS;
+    }
+
 }
