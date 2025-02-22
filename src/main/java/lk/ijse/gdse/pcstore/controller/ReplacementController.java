@@ -11,12 +11,9 @@ import javafx.scene.input.MouseEvent;
 import lk.ijse.gdse.pcstore.bo.BOFactory;
 import lk.ijse.gdse.pcstore.bo.custom.ItemBO;
 import lk.ijse.gdse.pcstore.bo.custom.OrdersBO;
-import lk.ijse.gdse.pcstore.bo.custom.OrdersItemBO;
 import lk.ijse.gdse.pcstore.bo.custom.ReplacementBO;
 import lk.ijse.gdse.pcstore.dto.ItemDTO;
-import lk.ijse.gdse.pcstore.dto.PaymentDTO;
 import lk.ijse.gdse.pcstore.dto.ReplacementDTO;
-import lk.ijse.gdse.pcstore.dto.tm.PaymentTM;
 import lk.ijse.gdse.pcstore.dto.tm.ReplacementTM;
 
 import java.net.URL;
@@ -94,7 +91,6 @@ public class ReplacementController implements Initializable {
 
     ItemBO itemBO = (ItemBO) BOFactory.getInstance().getBO(BOFactory.BOType.ITEM);
     OrdersBO ordersBO = (OrdersBO) BOFactory.getInstance().getBO(BOFactory.BOType.ORDERS);
-    OrdersItemBO ordersItemBO = (OrdersItemBO) BOFactory.getInstance().getBO(BOFactory.BOType.ORDERS_ITEM);
     ReplacementBO replacementBO = (ReplacementBO) BOFactory.getInstance().getBO(BOFactory.BOType.REPLACEMENT);
 
     private int qtyForUpdate = 0;
@@ -177,7 +173,7 @@ public class ReplacementController implements Initializable {
     }
 
     public void loadItemNames(String ordersId) throws SQLException {
-        ArrayList<String> itemIds = ordersItemBO.getAllItemsFromOrders(ordersId);
+        ArrayList<String> itemIds = ordersBO.getAllItemsFromOrders(ordersId);
         ArrayList<String> itemNames = new ArrayList<>();
 
         for (String itemId : itemIds) {
@@ -357,7 +353,7 @@ public class ReplacementController implements Initializable {
         ItemDTO itemDTO = itemBO.findByName(cmbFaultyItemName.getValue());
 
         if (itemDTO != null) {
-            txtQty.setText(ordersItemBO.findQty(itemDTO.getItemId()));
+            txtQty.setText(ordersBO.findQty(itemDTO.getItemId()));
             txtQty.setDisable(true);
             loadSimilarItemNames(itemDTO);
         }

@@ -10,7 +10,7 @@ public class BOFactory {
         return boFactory==null?boFactory=new BOFactory():boFactory;
     }
     public enum BOType {
-        CATEGORY, CUSTOMER, EMPLOYEE, ITEM, LOGIN_HISTORY, ORDERS, ORDERS_ITEM, ORDERS_REPAIR, PAYMENT, REPAIR, REPLACEMENT, SUPPLIER, SUPPLIES, SUPPLIES_ITEM, USER
+        CATEGORY, CUSTOMER, EMPLOYEE, ITEM, LOGIN_HISTORY, ORDERS, PAYMENT, REPAIR, REPLACEMENT, SUPPLIER, SUPPLIES, USER
     }
     public SuperBO getBO(BOType type) {
         switch (type) {
@@ -26,10 +26,6 @@ public class BOFactory {
                 return new LoginHistoryBOImpl();
             case ORDERS:
                 return new OrdersBOImpl();
-            case ORDERS_ITEM:
-                return new OrdersItemBOImpl();
-            case ORDERS_REPAIR:
-                return new OrdersRepairBOImpl();
             case PAYMENT:
                 return new PaymentBOImpl();
             case REPAIR:
@@ -40,8 +36,6 @@ public class BOFactory {
                 return new SupplierBOImpl();
             case SUPPLIES:
                 return new SuppliesBOImpl();
-            case SUPPLIES_ITEM:
-                return new SuppliesItemBOImpl();
             case USER:
                 return new UserBOImpl();
             default:

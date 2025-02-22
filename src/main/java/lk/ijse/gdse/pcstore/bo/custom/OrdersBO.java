@@ -14,6 +14,12 @@ import java.util.ArrayList;
 public interface OrdersBO extends SuperBO {
     String getNextOrderId() throws SQLException;
     boolean saveOrder(OrdersDTO ordersDTO) throws SQLException;
+    boolean saveOrderItemDetailsList(ArrayList<OrdersItemDTO> ordersItemDTOS) throws SQLException;
+    boolean saveOrderItemDetail(OrdersItemDTO ordersItemDTO) throws SQLException;
+    ArrayList<String> getAllItemsFromOrders(String selectedOrdersId) throws SQLException;
+    String findQty(String selectedItemId) throws SQLException;
+    boolean addRepairDetails(ArrayList<OrdersRepairDTO> ordersRepairDTOS) throws SQLException;
+    boolean saveRepairDetails(OrdersRepairDTO ordersRepairDTO) throws SQLException;
     ArrayList<OrdersDTO> getAllOrders() throws SQLException;
     ArrayList<OrdersItemDTO> getAllOrderItems(ArrayList<OrdersItem> ordersItems) throws SQLException;
     ArrayList<OrdersRepairDTO> getAllOrderRepairs(ArrayList<OrdersRepair> ordersRepairs) throws SQLException;

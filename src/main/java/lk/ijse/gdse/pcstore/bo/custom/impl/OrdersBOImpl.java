@@ -1,12 +1,12 @@
 package lk.ijse.gdse.pcstore.bo.custom.impl;
 
 import lk.ijse.gdse.pcstore.bo.BOFactory;
-import lk.ijse.gdse.pcstore.bo.custom.OrdersBO;
-import lk.ijse.gdse.pcstore.bo.custom.OrdersItemBO;
-import lk.ijse.gdse.pcstore.bo.custom.OrdersRepairBO;
+import lk.ijse.gdse.pcstore.bo.custom.*;
 import lk.ijse.gdse.pcstore.dao.DAOFactory;
 import lk.ijse.gdse.pcstore.dao.SQLUtil;
+import lk.ijse.gdse.pcstore.dao.custom.ItemDAO;
 import lk.ijse.gdse.pcstore.dao.custom.OrdersDAO;
+import lk.ijse.gdse.pcstore.dao.custom.OrdersItemDAO;
 import lk.ijse.gdse.pcstore.db.DBConnection;
 import lk.ijse.gdse.pcstore.dto.OrdersDTO;
 import lk.ijse.gdse.pcstore.dto.OrdersItemDTO;
@@ -22,8 +22,9 @@ import java.util.ArrayList;
 public class OrdersBOImpl implements OrdersBO {
 
     OrdersDAO ordersDAO = (OrdersDAO) DAOFactory.getInstance().getDAO(DAOFactory.DAOType.ORDERS);
-    OrdersItemBO ordersItemBO = (OrdersItemBO) BOFactory.getInstance().getBO(BOFactory.BOType.ORDERS_ITEM);
-    OrdersRepairBO ordersRepairBO = (OrdersRepairBO) BOFactory.getInstance().getBO(BOFactory.BOType.ORDERS_REPAIR);
+    OrdersItemDAO ordersItemDAO = (OrdersItemDAO) DAOFactory.getInstance().getDAO(DAOFactory.DAOType.ORDERS_ITEM);
+    ItemBO itemBO = (ItemBO) BOFactory.getInstance().getBO(BOFactory.BOType.ITEM);
+    RepairBO repairBO = (RepairBO) BOFactory.getInstance().getBO(BOFactory.BOType.REPAIR);
 
     @Override
     public String getNextOrderId() throws SQLException {
@@ -48,8 +49,8 @@ public class OrdersBOImpl implements OrdersBO {
                     ordersDTO.getOrderStatus()
             );
             if (isOrderSaved) {
-                boolean isOrderItemDetailListSaved = ordersItemBO.saveOrderDetailsList(ordersDTO.getOrdersItemDTOS());
-                boolean isOrderRepairDetailsListSaved = ordersRepairBO.addDetails(ordersDTO.getOrdersRepairDTOS());
+                boolean isOrderItemDetailListSaved = saveOrderItemDetailsList(ordersDTO.getOrdersItemDTOS());
+                boolean isOrderRepairDetailsListSaved = addRepairDetails(ordersDTO.getOrdersRepairDTOS());
 
                 if (isOrderItemDetailListSaved && isOrderRepairDetailsListSaved) {
                     connection.commit();
@@ -65,6 +66,69 @@ public class OrdersBOImpl implements OrdersBO {
         } finally {
             connection.setAutoCommit(true);
         }
+    }
+
+    @Override
+    public boolean saveOrderItemDetailsList(ArrayList<OrdersItemDTO> ordersItemDTOS) throws SQLException {
+        for (OrdersItemDTO ordersItemDTO : ordersItemDTOS) {
+            boolean isOrderDetailsSaved = saveOrderItemDetail(ordersItemDTO);
+            if (!isOrderDetailsSaved) {
+                return false;
+            }
+
+            boolean isItemUpdated = itemBO.reduceQty(ordersItemDTO);
+            if (!isItemUpdated) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean saveOrderItemDetail(OrdersItemDTO ordersItemDTO) throws SQLException {
+        return SQLUtil.execute(
+                "insert into orders_item values (?,?,?,?)",
+                ordersItemDTO.getOrderId(),
+                ordersItemDTO.getItemId(),
+                ordersItemDTO.getQuantity(),
+                ordersItemDTO.getPrice()
+        );
+    }
+
+    @Override
+    public ArrayList<String> getAllItemsFromOrders(String selectedOrdersId) throws SQLException {
+        return ordersItemDAO.getAllItemsFromOrders(selectedOrdersId);
+    }
+
+    @Override
+    public String findQty(String selectedItemId) throws SQLException {
+        return ordersItemDAO.findQty(selectedItemId);
+    }
+
+    @Override
+    public boolean addRepairDetails(ArrayList<OrdersRepairDTO> ordersRepairDTOS) throws SQLException {
+        for (OrdersRepairDTO ordersRepairDTO : ordersRepairDTOS) {
+            boolean isRepairDetailsSaved = saveRepairDetails(ordersRepairDTO);
+            if(!isRepairDetailsSaved) {
+                return false;
+            }
+
+            boolean isRepairUpdated = repairBO.updateRepairForOrders(ordersRepairDTO);
+            if(!isRepairUpdated) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean saveRepairDetails(OrdersRepairDTO ordersRepairDTO) throws SQLException {
+        return SQLUtil.execute(
+                "insert into orders_repair values(?,?,?)",
+                ordersRepairDTO.getOrderId(),
+                ordersRepairDTO.getRepairId(),
+                ordersRepairDTO.getRepairPrice()
+        );
     }
 
     @Override

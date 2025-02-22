@@ -192,11 +192,6 @@ public class SuppliesController implements Initializable {
         int cartQty = Integer.parseInt(cartQtyString);
         int qtyOnHand = Integer.parseInt(lblItemQty.getText());
 
-        if (qtyOnHand < cartQty) {
-            new Alert(Alert.AlertType.ERROR, "Not enough items..!").show();
-            return;
-        }
-
         txtAddToCartQty.setText("");
 
         double unitPrice = Double.parseDouble(lblItemPrice.getText());
